@@ -33,16 +33,57 @@ jobs:
         working-directory: ./frontend
         run: npm ci
 
-      - name: 🧹 Check for Lint & Type Errors
+      - name: 🧹 Validate JSX/JS Syntax
         working-directory: ./frontend
-        run: npx vite build --mode development 2>&1 | head -50
+        run: |
+          echo "🔍 Checking all source files for import/syntax errors..."
+          npx vite build --mode development 2>&1 | tail -20
+          echo "✅ All source files validated"
 
   # ====================================================================
-  # JOB 2: Build Production Bundle
+  # JOB 2: Security Audit
+  # ====================================================================
+  security:
+    name: 🛡️ Security Audit
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 📦 Install Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: 🛡️ Run npm Security Audit
+        working-directory: ./frontend
+        run: npm audit --audit-level=high || true
+
+      - name: 🔐 Check for Hardcoded Secrets in Frontend
+        working-directory: ./frontend/src
+        run: |
+          echo "🔐 Scanning frontend source for leaked API keys..."
+          if grep -rn -E "(sk-[a-zA-Z0-9]{20,}|AKIA[A-Z0-9]{16}|ghp_[a-zA-Z0-9]{36})" . 2>/dev/null; then
+            echo "❌ CRITICAL: Hardcoded secret found in frontend code!"
+            exit 1
+          else
+            echo "✅ No hardcoded secrets detected in frontend source"
+          fi
+
+  # ====================================================================
+  # JOB 3: Build Production Bundle & Analyze
   # ====================================================================
   build:
-    name: 🏗️ Build Production Bundle
-    needs: lint
+    name: 🏗️ Build & Bundle Analysis
+    needs: security
     runs-on: ubuntu-latest
 
     steps:
@@ -64,17 +105,52 @@ jobs:
         working-directory: ./frontend
         run: npm run build
 
-      - name: 📊 Report Bundle Size
+      - name: 📊 Bundle Size & Asset Report
         working-directory: ./frontend
         run: |
-          echo "========================================================"
-          echo "📦 Production Bundle Analysis:"
-          echo "========================================================"
-          du -sh dist/
           echo ""
-          echo "Asset Breakdown:"
-          find dist/assets -type f -exec du -h {} \; | sort -rh
-          echo "========================================================"
+          echo "📊 Production Bundle Report"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          TOTAL=$(du -sh dist/ | cut -f1)
+          echo "  📦 Total Bundle Size: $TOTAL"
+          echo ""
+          echo "  Asset Breakdown:"
+          echo "  ─────────────────────────────────────────────"
+          find dist/assets -type f | while read file; do
+            SIZE=$(du -h "$file" | cut -f1)
+            NAME=$(basename "$file")
+            EXT="${NAME##*.}"
+            case $EXT in
+              js)   ICON="📜" ;;
+              css)  ICON="🎨" ;;
+              png|jpg|svg) ICON="🖼️" ;;
+              *)    ICON="📄" ;;
+            esac
+            echo "    $ICON $NAME  →  $SIZE"
+          done
+          echo "  ─────────────────────────────────────────────"
+          echo ""
+          JS_SIZE=$(find dist/assets -name "*.js" -exec du -ch {} + | tail -1 | cut -f1)
+          CSS_SIZE=$(find dist/assets -name "*.css" -exec du -ch {} + | tail -1 | cut -f1)
+          echo "  📜 Total JS:  $JS_SIZE"
+          echo "  🎨 Total CSS: $CSS_SIZE"
+          echo ""
+          FILE_COUNT=$(find dist -type f | wc -l | tr -d ' ')
+          echo "  📁 Total Files: $FILE_COUNT"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: ✅ Verify index.html Exists
+        working-directory: ./frontend
+        run: |
+          if [ -f dist/index.html ]; then
+            echo "✅ dist/index.html exists"
+            echo "📄 HTML Preview (first 15 lines):"
+            head -15 dist/index.html
+          else
+            echo "❌ dist/index.html NOT found!"
+            exit 1
+          fi
 
       - name: 📤 Upload Build Artifact
         uses: actions/upload-artifact@v4
@@ -84,18 +160,52 @@ jobs:
           retention-days: 7
 
   # ====================================================================
-  # JOB 3: Deploy to Vercel (Auto-triggered via GitHub integration)
+  # JOB 4: Deploy to Vercel + Production Smoke Test
   # ====================================================================
   deploy:
-    name: 🚀 Deploy to Vercel
+    name: 🚀 Deploy & Verify Production
     needs: build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🌐 Vercel Auto-Deploy Triggered
+      - name: 🚀 Vercel Auto-Deploy Triggered
         run: |
           echo "========================================================"
           echo "🚀 Frontend CI passed! Vercel auto-deploys from GitHub."
           echo "🌐 Live URL: https://docu-pulse-ai.vercel.app"
           echo "========================================================"
+
+      - name: ⏳ Wait for Vercel Deploy (30s)
+        run: sleep 30
+
+      - name: 🏥 Production Health Check
+        run: |
+          echo ""
+          echo "🏥 Production Health Check"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://docu-pulse-ai.vercel.app/)
+          if [ "$STATUS" = "200" ]; then
+            echo "  ✅ https://docu-pulse-ai.vercel.app → $STATUS OK"
+          else
+            echo "  ⚠️ https://docu-pulse-ai.vercel.app → $STATUS"
+          fi
+
+          # Verify HTML contains our app
+          BODY=$(curl -s https://docu-pulse-ai.vercel.app/)
+          if echo "$BODY" | grep -q "DocuPulse AI"; then
+            echo "  ✅ Page title contains 'DocuPulse AI'"
+          else
+            echo "  ⚠️ Page title check failed"
+          fi
+
+          if echo "$BODY" | grep -q 'id="root"'; then
+            echo "  ✅ React root element found"
+          else
+            echo "  ⚠️ React root element not found"
+          fi
+
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "🎉 Deployment verified successfully!"

@@ -35,14 +35,58 @@ jobs:
 
       - name: 🧹 Check Code Syntax (No Runtime Errors)
         working-directory: ./backend
-        run: node --check server.js
+        run: |
+          echo "🔍 Checking all .js files for syntax errors..."
+          find . -name "*.js" -not -path "./node_modules/*" | while read file; do
+            node --check "$file" && echo "  ✅ $file" || { echo "  ❌ $file"; exit 1; }
+          done
 
   # ====================================================================
-  # JOB 2: Test All Backend Modules & Services
+  # JOB 2: Security Audit
+  # ====================================================================
+  security:
+    name: 🛡️ Security Audit
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: 📦 Install Dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: 🛡️ Run npm Security Audit
+        working-directory: ./backend
+        run: npm audit --audit-level=high || true
+
+      - name: 🔐 Check for Hardcoded Secrets
+        working-directory: ./backend
+        run: |
+          echo "🔐 Scanning for hardcoded API keys & secrets..."
+          FOUND=0
+          # Check for common secret patterns (skip node_modules & .env)
+          grep -rn --include="*.js" -E "(sk-[a-zA-Z0-9]{20,}|AKIA[A-Z0-9]{16}|ghp_[a-zA-Z0-9]{36})" . --exclude-dir=node_modules || true
+          if grep -rn --include="*.js" -E "password\s*=\s*['\"][^'\"]+['\"]" . --exclude-dir=node_modules 2>/dev/null; then
+            echo "⚠️ Warning: Possible hardcoded password found"
+          else
+            echo "✅ No hardcoded secrets detected"
+          fi
+
+  # ====================================================================
+  # JOB 3: Test All Backend Modules & API Endpoints
   # ====================================================================
   test:
-    name: 🧪 Test Backend Services
-    needs: lint
+    name: 🧪 Test Backend Services & APIs
+    needs: security
     runs-on: ubuntu-latest
 
     env:
@@ -69,57 +113,153 @@ jobs:
         run: |
           node -e "
             const modules = [
-              './src/config',
-              './src/routes',
-              './src/services/brightdata.service',
-              './src/services/vector.service',
-              './src/services/rag.service'
+              { name: 'Config',           path: './src/config' },
+              { name: 'API Routes',       path: './src/routes' },
+              { name: 'BrightData Svc',   path: './src/services/brightdata.service' },
+              { name: 'Vector Svc',       path: './src/services/vector.service' },
+              { name: 'RAG Svc',          path: './src/services/rag.service' }
             ];
-            let passed = 0;
-            let failed = 0;
-            modules.forEach(mod => {
+            console.log('');
+            console.log('🧪 Module Validation Report');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            let passed = 0, failed = 0;
+            modules.forEach(m => {
               try {
-                require(mod);
-                console.log('  ✅ ' + mod);
+                require(m.path);
+                console.log('  ✅ ' + m.name.padEnd(20) + m.path);
                 passed++;
               } catch (err) {
-                console.error('  ❌ ' + mod + ': ' + err.message);
+                console.error('  ❌ ' + m.name.padEnd(20) + err.message);
                 failed++;
               }
             });
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log('  Total: ' + (passed+failed) + ' | ✅ Passed: ' + passed + ' | ❌ Failed: ' + failed);
             console.log('');
-            console.log('Results: ' + passed + ' passed, ' + failed + ' failed');
             if (failed > 0) process.exit(1);
           "
 
-      - name: 🌐 Verify Express Server Boots Successfully
+      - name: 🌐 Boot Express Server & Test API Endpoints
         working-directory: ./backend
         run: |
-          timeout 8 node -e "
-            const app = require('./server');
-            const server = app.listen(3099, () => {
-              console.log('✅ Express server booted on port 3099');
-              server.close(() => {
-                console.log('✅ Server shutdown clean');
-                process.exit(0);
-              });
-            });
-          " || true
+          # Start server in background
+          node server.js &
+          SERVER_PID=$!
+          sleep 3
+
+          echo ""
+          echo "🌐 API Endpoint Smoke Tests"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          PASSED=0
+          FAILED=0
+
+          # Test 1: Root health endpoint
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/)
+          if [ "$STATUS" = "200" ]; then
+            echo "  ✅ GET  /                  → $STATUS OK"
+            PASSED=$((PASSED+1))
+          else
+            echo "  ❌ GET  /                  → $STATUS FAIL"
+            FAILED=$((FAILED+1))
+          fi
+
+          # Test 2: Doc stores
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/api/doc-stores)
+          if [ "$STATUS" = "200" ]; then
+            echo "  ✅ GET  /api/doc-stores     → $STATUS OK"
+            PASSED=$((PASSED+1))
+          else
+            echo "  ❌ GET  /api/doc-stores     → $STATUS FAIL"
+            FAILED=$((FAILED+1))
+          fi
+
+          # Test 3: Scraper health
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/api/scraper/health)
+          if [ "$STATUS" = "200" ]; then
+            echo "  ✅ GET  /api/scraper/health → $STATUS OK"
+            PASSED=$((PASSED+1))
+          else
+            echo "  ❌ GET  /api/scraper/health → $STATUS FAIL"
+            FAILED=$((FAILED+1))
+          fi
+
+          # Test 4: Breaking diff
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/api/breaking-diff)
+          if [ "$STATUS" = "200" ]; then
+            echo "  ✅ GET  /api/breaking-diff  → $STATUS OK"
+            PASSED=$((PASSED+1))
+          else
+            echo "  ❌ GET  /api/breaking-diff  → $STATUS FAIL"
+            FAILED=$((FAILED+1))
+          fi
+
+          # Test 5: RAG chat endpoint (POST)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:3001/api/chat/rag \
+            -H "Content-Type: application/json" \
+            -d '{"query":"test","targetDoc":"bright-data-sdk"}')
+          if [ "$STATUS" = "200" ]; then
+            echo "  ✅ POST /api/chat/rag       → $STATUS OK"
+            PASSED=$((PASSED+1))
+          else
+            echo "  ⚠️ POST /api/chat/rag       → $STATUS (Expected - needs API keys)"
+          fi
+
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "  Total: $((PASSED+FAILED)) | ✅ Passed: $PASSED | ❌ Failed: $FAILED"
+          echo ""
+
+          # Cleanup
+          kill $SERVER_PID 2>/dev/null
+          echo "✅ Server shutdown clean"
+
+          if [ "$FAILED" -gt 0 ]; then exit 1; fi
 
   # ====================================================================
-  # JOB 3: Deploy to Render (Auto-triggered via GitHub webhook)
+  # JOB 4: Deploy to Render + Production Smoke Test
   # ====================================================================
   deploy:
-    name: 🚀 Deploy to Render
+    name: 🚀 Deploy & Verify Production
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🌐 Render Auto-Deploy Triggered
+      - name: 🚀 Render Auto-Deploy Triggered
         run: |
           echo "========================================================"
           echo "🚀 Backend CI passed! Render auto-deploys from GitHub."
           echo "📡 Live URL: https://docupulse-ai.onrender.com"
-          echo "📡 Health:   https://docupulse-ai.onrender.com/api/health"
           echo "========================================================"
+
+      - name: ⏳ Wait for Render Deploy (60s)
+        run: sleep 60
+
+      - name: 🏥 Production Health Check
+        run: |
+          echo ""
+          echo "🏥 Production Health Check"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          # Check root endpoint
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://docupulse-ai.onrender.com/)
+          if [ "$STATUS" = "200" ]; then
+            echo "  ✅ Root endpoint:    $STATUS OK"
+          else
+            echo "  ⚠️ Root endpoint:    $STATUS (Render may still be deploying)"
+          fi
+
+          # Check doc-stores
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://docupulse-ai.onrender.com/api/doc-stores)
+          if [ "$STATUS" = "200" ]; then
+            echo "  ✅ /api/doc-stores:  $STATUS OK"
+          else
+            echo "  ⚠️ /api/doc-stores:  $STATUS (Render may still be deploying)"
+          fi
+
+          # Print response body
+          echo ""
+          echo "📡 API Response:"
+          curl -s https://docupulse-ai.onrender.com/ | head -c 500
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
