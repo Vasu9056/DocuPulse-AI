@@ -6,6 +6,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org)
 [![React](https://img.shields.io/badge/React-18-61DAFB.svg)](https://reactjs.org)
 [![Vite](https://img.shields.io/badge/Vite-5.0-646CFF.svg)](https://vitejs.dev)
+[![CI/CD Pipeline](https://github.com/Vasu9056/DocuPulse-AI/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Vasu9056/DocuPulse-AI/actions)
 [![Bright Data](https://img.shields.io/badge/Powered%20By-Bright%20Data%20DCA-orange.svg)](https://brightdata.com)
 
 ---
