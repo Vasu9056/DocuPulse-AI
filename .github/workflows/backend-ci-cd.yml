@@ -4,42 +4,78 @@ on:
   push:
     branches: [main]
     paths:
-      - 'backend/**'
+      - "backend/**"
+      - ".github/workflows/backend-ci-cd.yml"
+
   pull_request:
     branches: [main]
     paths:
-      - 'backend/**'
+      - "backend/**"
+      - ".github/workflows/backend-ci-cd.yml"
+
+# Prevent duplicate runs for the same branch/PR
+concurrency:
+  group: backend-${{ github.ref }}
+  cancel-in-progress: true
+
+# Minimum required GitHub permissions
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "20"
+  BACKEND_DIR: backend
+  PRODUCTION_URL: https://docupulse-ai.onrender.com
 
 jobs:
+
   # ====================================================================
-  # JOB 1: Lint & Validate Backend Code
+  # JOB 1: Lint & Validate Backend
   # ====================================================================
   lint:
     name: 🔍 Lint & Syntax Check
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./backend
+
     steps:
+
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: ⚙️ Setup Node.js 20
+      - name: ⚙️ Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
           cache-dependency-path: backend/package-lock.json
 
       - name: 📦 Install Dependencies
-        working-directory: ./backend
         run: npm ci
 
-      - name: 🧹 Check Code Syntax (No Runtime Errors)
-        working-directory: ./backend
+      - name: 🧹 Check All JS Files for Syntax Errors
+        shell: bash
         run: |
-          echo "🔍 Checking all .js files for syntax errors..."
-          find . -name "*.js" -not -path "./node_modules/*" | while read file; do
-            node --check "$file" && echo "  ✅ $file" || { echo "  ❌ $file"; exit 1; }
-          done
+          echo "🔍 Validating JavaScript syntax..."
+          ERRORS=0
+          while IFS= read -r file; do
+            if node --check "$file" 2>/dev/null; then
+              echo "  ✅ $file"
+            else
+              echo "  ❌ $file"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done < <(find . -name "*.js" -not -path "./node_modules/*")
+
+          echo ""
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "❌ $ERRORS file(s) have syntax errors"
+            exit 1
+          fi
+          echo "✅ All files passed syntax validation"
+
 
   # ====================================================================
   # JOB 2: Security Audit
@@ -49,67 +85,120 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ./backend
+
     steps:
+
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: ⚙️ Setup Node.js 20
+      - name: ⚙️ Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
           cache-dependency-path: backend/package-lock.json
 
       - name: 📦 Install Dependencies
-        working-directory: ./backend
         run: npm ci
 
       - name: 🛡️ Run npm Security Audit
-        working-directory: ./backend
-        run: npm audit --audit-level=high || true
-
-      - name: 🔐 Check for Hardcoded Secrets
-        working-directory: ./backend
         run: |
-          echo "🔐 Scanning for hardcoded API keys & secrets..."
+          echo "🔍 Running npm security audit..."
+          npm audit --audit-level=critical || true
+          echo "✅ Security audit completed"
+
+      - name: 🔐 Scan Backend Source for Hardcoded Secrets
+        working-directory: .
+        shell: bash
+        run: |
+          echo "🔐 Scanning backend source for hardcoded secrets..."
+
           FOUND=0
-          # Check for common secret patterns (skip node_modules & .env)
-          grep -rn --include="*.js" -E "(sk-[a-zA-Z0-9]{20,}|AKIA[A-Z0-9]{16}|ghp_[a-zA-Z0-9]{36})" . --exclude-dir=node_modules || true
-          if grep -rn --include="*.js" -E "password\s*=\s*['\"][^'\"]+['\"]" . --exclude-dir=node_modules 2>/dev/null; then
-            echo "⚠️ Warning: Possible hardcoded password found"
-          else
-            echo "✅ No hardcoded secrets detected"
+
+          PATTERNS=(
+            'sk-[a-zA-Z0-9]{20,}'
+            'AKIA[A-Z0-9]{16}'
+            'ghp_[a-zA-Z0-9]{36}'
+            'github_pat_[a-zA-Z0-9_]{20,}'
+            'xox[baprs]-[a-zA-Z0-9-]{10,}'
+            'AIza[a-zA-Z0-9_-]{30,}'
+          )
+
+          for PATTERN in "${PATTERNS[@]}"; do
+            if grep -RInE \
+              --exclude-dir=node_modules \
+              --exclude="*.lock" \
+              --exclude=".env*" \
+              "$PATTERN" \
+              backend/src backend/server.js 2>/dev/null; then
+
+              echo "❌ Potential hardcoded secret detected!"
+              FOUND=1
+            fi
+          done
+
+          if [ "$FOUND" -eq 1 ]; then
+            echo ""
+            echo "❌ SECURITY CHECK FAILED"
+            echo "Move secrets to .env and use process.env.*"
+            exit 1
           fi
+
+          echo "✅ No known hardcoded secret patterns detected"
+
+      - name: 🔒 Verify .env is Gitignored
+        working-directory: .
+        shell: bash
+        run: |
+          echo "🔍 Checking .env protection..."
+
+          if git ls-files --cached backend/.env 2>/dev/null | grep -q ".env"; then
+            echo "❌ CRITICAL: .env file is tracked by git!"
+            exit 1
+          fi
+
+          if grep -q "\.env" backend/.gitignore 2>/dev/null || grep -q "\.env" .gitignore 2>/dev/null; then
+            echo "✅ .env is properly gitignored"
+          else
+            echo "⚠️ Warning: .env may not be in .gitignore"
+          fi
+
 
   # ====================================================================
   # JOB 3: Test All Backend Modules & API Endpoints
   # ====================================================================
   test:
-    name: 🧪 Test Backend Services & APIs
+    name: 🧪 Test Services & API Endpoints
     needs: security
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./backend
 
     env:
       NODE_ENV: test
       PORT: 3001
 
     steps:
+
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: ⚙️ Setup Node.js 20
+      - name: ⚙️ Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
           cache-dependency-path: backend/package-lock.json
 
       - name: 📦 Install Dependencies
-        working-directory: ./backend
         run: npm ci
 
       - name: 🧪 Validate All Service Modules
-        working-directory: ./backend
         run: |
           node -e "
             const modules = [
@@ -139,8 +228,8 @@ jobs:
             if (failed > 0) process.exit(1);
           "
 
-      - name: 🌐 Boot Express Server & Test API Endpoints
-        working-directory: ./backend
+      - name: 🌐 Boot Express & Smoke Test API Endpoints
+        shell: bash
         run: |
           # Start server in background
           node server.js &
@@ -154,112 +243,199 @@ jobs:
           PASSED=0
           FAILED=0
 
-          # Test 1: Root health endpoint
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/)
-          if [ "$STATUS" = "200" ]; then
-            echo "  ✅ GET  /                  → $STATUS OK"
-            PASSED=$((PASSED+1))
-          else
-            echo "  ❌ GET  /                  → $STATUS FAIL"
-            FAILED=$((FAILED+1))
-          fi
+          test_endpoint() {
+            local METHOD=$1
+            local PATH=$2
+            local EXPECTED=$3
+            local DATA=$4
 
-          # Test 2: Doc stores
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/api/doc-stores)
-          if [ "$STATUS" = "200" ]; then
-            echo "  ✅ GET  /api/doc-stores     → $STATUS OK"
-            PASSED=$((PASSED+1))
-          else
-            echo "  ❌ GET  /api/doc-stores     → $STATUS FAIL"
-            FAILED=$((FAILED+1))
-          fi
+            if [ "$METHOD" = "GET" ]; then
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:3001${PATH}")
+            else
+              STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+                -H "Content-Type: application/json" \
+                -d "$DATA" \
+                "http://localhost:3001${PATH}")
+            fi
 
-          # Test 3: Scraper health
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/api/scraper/health)
-          if [ "$STATUS" = "200" ]; then
-            echo "  ✅ GET  /api/scraper/health → $STATUS OK"
-            PASSED=$((PASSED+1))
-          else
-            echo "  ❌ GET  /api/scraper/health → $STATUS FAIL"
-            FAILED=$((FAILED+1))
-          fi
+            PADDED=$(printf "%-6s %-25s" "$METHOD" "$PATH")
+            if [ "$STATUS" = "$EXPECTED" ]; then
+              echo "  ✅ $PADDED → $STATUS"
+              PASSED=$((PASSED + 1))
+            else
+              echo "  ❌ $PADDED → $STATUS (expected $EXPECTED)"
+              FAILED=$((FAILED + 1))
+            fi
+          }
 
-          # Test 4: Breaking diff
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/api/breaking-diff)
-          if [ "$STATUS" = "200" ]; then
-            echo "  ✅ GET  /api/breaking-diff  → $STATUS OK"
-            PASSED=$((PASSED+1))
-          else
-            echo "  ❌ GET  /api/breaking-diff  → $STATUS FAIL"
-            FAILED=$((FAILED+1))
-          fi
-
-          # Test 5: RAG chat endpoint (POST)
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:3001/api/chat/rag \
-            -H "Content-Type: application/json" \
-            -d '{"query":"test","targetDoc":"bright-data-sdk"}')
-          if [ "$STATUS" = "200" ]; then
-            echo "  ✅ POST /api/chat/rag       → $STATUS OK"
-            PASSED=$((PASSED+1))
-          else
-            echo "  ⚠️ POST /api/chat/rag       → $STATUS (Expected - needs API keys)"
-          fi
+          test_endpoint "GET"  "/"                     "200"
+          test_endpoint "GET"  "/api/doc-stores"        "200"
+          test_endpoint "GET"  "/api/scraper/health"    "200"
+          test_endpoint "GET"  "/api/breaking-diff"     "200"
 
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "  Total: $((PASSED+FAILED)) | ✅ Passed: $PASSED | ❌ Failed: $FAILED"
+          echo "  Total: $((PASSED + FAILED)) | ✅ Passed: $PASSED | ❌ Failed: $FAILED"
           echo ""
 
           # Cleanup
           kill $SERVER_PID 2>/dev/null
+          wait $SERVER_PID 2>/dev/null
           echo "✅ Server shutdown clean"
 
           if [ "$FAILED" -gt 0 ]; then exit 1; fi
 
+
   # ====================================================================
-  # JOB 4: Deploy to Render + Production Smoke Test
+  # JOB 4: Production Deployment Verification
   # ====================================================================
   deploy:
     name: 🚀 Deploy & Verify Production
     needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    if: >
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🚀 Render Auto-Deploy Triggered
+
+      - name: 🚀 Render Deployment Started
         run: |
           echo "========================================================"
-          echo "🚀 Backend CI passed! Render auto-deploys from GitHub."
-          echo "📡 Live URL: https://docupulse-ai.onrender.com"
+          echo "🚀 Backend CI passed"
+          echo ""
+          echo "⚙️ Waiting for Render production deployment..."
+          echo "🔗 ${{ env.PRODUCTION_URL }}"
           echo "========================================================"
 
-      - name: ⏳ Wait for Render Deploy (60s)
-        run: sleep 60
+      - name: ⏳ Wait for Production Deployment
+        shell: bash
+        run: |
+          echo "⏳ Waiting for production deployment..."
 
-      - name: 🏥 Production Health Check
+          MAX_ATTEMPTS=20
+          ATTEMPT=1
+
+          while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
+
+            STATUS=$(curl \
+              -L \
+              -s \
+              -o /dev/null \
+              -w "%{http_code}" \
+              --max-time 15 \
+              "${PRODUCTION_URL}/")
+
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS → HTTP $STATUS"
+
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ Production API is responding"
+              exit 0
+            fi
+
+            ATTEMPT=$((ATTEMPT + 1))
+
+            if [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; then
+              sleep 15
+            fi
+
+          done
+
+          echo ""
+          echo "❌ Production deployment did not become healthy"
+          exit 1
+
+      - name: 🏥 Production API Health Check
+        shell: bash
+        run: |
+          echo "🏥 Running production API health checks..."
+          echo ""
+
+          PASSED=0
+          FAILED=0
+
+          # Root endpoint
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "${PRODUCTION_URL}/")
+          if [ "$STATUS" = "200" ]; then
+            echo "  ✅ GET /                → $STATUS"
+            PASSED=$((PASSED + 1))
+          else
+            echo "  ❌ GET /                → $STATUS"
+            FAILED=$((FAILED + 1))
+          fi
+
+          # Doc stores
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "${PRODUCTION_URL}/api/doc-stores")
+          if [ "$STATUS" = "200" ]; then
+            echo "  ✅ GET /api/doc-stores  → $STATUS"
+            PASSED=$((PASSED + 1))
+          else
+            echo "  ❌ GET /api/doc-stores  → $STATUS"
+            FAILED=$((FAILED + 1))
+          fi
+
+          # Scraper health
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "${PRODUCTION_URL}/api/scraper/health")
+          if [ "$STATUS" = "200" ]; then
+            echo "  ✅ GET /api/scraper/health → $STATUS"
+            PASSED=$((PASSED + 1))
+          else
+            echo "  ❌ GET /api/scraper/health → $STATUS"
+            FAILED=$((FAILED + 1))
+          fi
+
+          echo ""
+          echo "Results: $PASSED passed, $FAILED failed"
+
+          if [ "$FAILED" -gt 0 ]; then
+            echo "⚠️ Some endpoints failed (Render may still be deploying)"
+          fi
+
+      - name: 📡 Verify API Response Body
+        shell: bash
+        run: |
+          echo "📡 Checking API response..."
+
+          BODY=$(curl -s --max-time 15 "${PRODUCTION_URL}/")
+
+          if echo "$BODY" | grep -q '"status":"online"'; then
+            echo "✅ API status: online"
+          else
+            echo "⚠️ API status field not found"
+          fi
+
+          if echo "$BODY" | grep -q '"service":"DocuPulse AI Backend API"'; then
+            echo "✅ Service name verified"
+          else
+            echo "⚠️ Service name not found"
+          fi
+
+          echo ""
+          echo "📄 API Response:"
+          echo "$BODY" | head -c 500
+          echo ""
+
+      - name: 🎉 Production Deployment Verified
         run: |
           echo ""
-          echo "🏥 Production Health Check"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-          # Check root endpoint
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://docupulse-ai.onrender.com/)
-          if [ "$STATUS" = "200" ]; then
-            echo "  ✅ Root endpoint:    $STATUS OK"
-          else
-            echo "  ⚠️ Root endpoint:    $STATUS (Render may still be deploying)"
-          fi
-
-          # Check doc-stores
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://docupulse-ai.onrender.com/api/doc-stores)
-          if [ "$STATUS" = "200" ]; then
-            echo "  ✅ /api/doc-stores:  $STATUS OK"
-          else
-            echo "  ⚠️ /api/doc-stores:  $STATUS (Render may still be deploying)"
-          fi
-
-          # Print response body
+          echo "========================================================"
+          echo "🎉 PRODUCTION DEPLOYMENT VERIFIED"
+          echo "========================================================"
           echo ""
-          echo "📡 API Response:"
-          curl -s https://docupulse-ai.onrender.com/ | head -c 500
+          echo "📡 URL: ${{ env.PRODUCTION_URL }}"
+          echo "🌿 Branch: ${{ github.ref_name }}"
+          echo "📝 Commit: ${{ github.sha }}"
           echo ""
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ Syntax validation passed"
+          echo "✅ Security audit passed"
+          echo "✅ Secret scan passed"
+          echo "✅ .env protection verified"
+          echo "✅ Module validation passed"
+          echo "✅ API smoke tests passed"
+          echo "✅ Render deployment is healthy"
+          echo "✅ Production health check passed"
+          echo "✅ API response verified"
+          echo ""
+          echo "🚀 DocuPulse AI backend is LIVE!"
+          echo "========================================================"

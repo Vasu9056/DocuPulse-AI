@@ -106,6 +106,7 @@ triggerDocCollector();`,
   "nextjs": {
     matchQuery: "next.js",
     headline: "Next.js 15 Breaking Changes: Async Request Headers & Cookies",
+    // eslint-disable-next-line no-useless-escape
     answer: "In Next.js 15, runtime APIs that inspect incoming request data—including \`cookies()\`, \`headers()\`, \`params\`, and \`searchParams\`—have been changed from synchronous properties to **asynchronous Promises**. You must now \`await\` them before reading values.",
     codeLang: "typescript",
     code: `// Next.js 15 Server Component / Route Handler
@@ -137,6 +138,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
   "langchain": {
     matchQuery: "langchain",
     headline: "LangChain v0.3 Standardized Tool Calling with Pydantic",
+    // eslint-disable-next-line no-useless-escape
     answer: "In LangChain v0.3, tool calling and structured output are standardized using \`.bind_tools()\` and \`.with_structured_output()\`. Models directly bind Python functions or Pydantic models with type safety.",
     codeLang: "python",
     code: `# LangChain v0.3 Tool Calling Example

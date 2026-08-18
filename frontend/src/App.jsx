@@ -218,7 +218,9 @@ function AppLayout({
 
     try {
       api.triggerScraper('https://nextjs.org/docs/app/building-your-application/upgrading/version-15', true);
-    } catch (e) {}
+    } catch (_e) {
+      // Ignore scraper trigger error
+    }
 
     setTimeout(() => {
       setTerminalLogs(prev => [

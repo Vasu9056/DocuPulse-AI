@@ -11,17 +11,12 @@ export default function SearchModal({ isOpen, onClose, onSubmitQuery, onNavigate
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        onOpenSearch();
-      }
       if (e.key === 'Escape') {
         onClose();
       }
     };
-    
-    // We only attach global listener here if we didn't handle it in App.jsx. 
-    // It's safer to handle in App.jsx and pass isOpen state, which is what we do.
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
   if (!isOpen) return null;
