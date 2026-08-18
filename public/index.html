@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DocuPulse AI — Self-Healing Documentation RAG & Developer Copilot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ================= 1. HIGH-IMPACT LANDING PAGE ================= -->
+  <div id="view-landing" class="landing-page">
+    <div class="landing-hero">
+      <div class="landing-logo-badge">
+        <svg class="brand-spark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+        </svg>
+        <span>Powered by Bright Data Scraper Studio</span>
+      </div>
+
+      <h1 class="landing-title">Zero-Hallucination AI Copilot<br><span class="gradient-text">Powered by Self-Healing Docs</span></h1>
+      <p class="landing-subtitle">
+        Fast-moving developer documentation changes constantly. Traditional scrapers break and LLMs hallucinate outdated APIs. 
+        <strong>DocuPulse AI</strong> crawls, self-heals DOM drifts, and indexes live markdown into high-precision vector RAG with verified citations.
+      </p>
+
+      <div class="landing-cta-group">
+        <button id="getStartedBtn" class="btn btn-landing">
+          <span>Launch DocuPulse Copilot</span>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+      </div>
+
+      <!-- Live RAG & Scraper Metrics -->
+      <div class="landing-stats">
+        <div class="landing-stat">
+          <div class="landing-stat-value">18,420</div>
+          <div class="landing-stat-label">Vector Chunks Synced</div>
+        </div>
+        <div class="landing-stat">
+          <div class="landing-stat-value green">99.8%</div>
+          <div class="landing-stat-label">RAG Grounded Precision</div>
+        </div>
+        <div class="landing-stat">
+          <div class="landing-stat-value blue">3 DOM Drifts</div>
+          <div class="landing-stat-label">Auto-Healed (0 Downtime)</div>
+        </div>
+        <div class="landing-stat">
+          <div class="landing-stat-value amber">$52.00</div>
+          <div class="landing-stat-label">Active Scraping Credits</div>
+        </div>
+      </div>
+
+      <!-- Feature Pillars -->
+      <div class="landing-features">
+        <div class="landing-feature-card">
+          <div class="feature-icon blue">⚡</div>
+          <h3>Continuous Doc Scraping</h3>
+          <p>Scrapes live API reference pages, code examples, and release notes with residential proxy unblocking.</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="feature-icon emerald">🛡️</div>
+          <h3>Self-Healing Engine</h3>
+          <p>When docs migrate frameworks (e.g. Docusaurus ➔ Mintlify), plain-language field descriptions auto-repair selectors.</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="feature-icon purple">🎯</div>
+          <h3>Verified Citation RAG</h3>
+          <p>Every line of code and answer is backed by direct, clickable links to the exact scraped doc paragraph.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 2. CMD+K SEARCH MODAL ================= -->
+  <div id="searchModalOverlay" class="modal-overlay">
+    <div class="search-modal">
+      <div class="search-modal-header">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--text-muted)" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="cmdKSearchInput" placeholder="Search documentation, API methods, vector chunks... (Press ESC to close)">
+        <kbd class="search-kbd">ESC</kbd>
+      </div>
+      <div class="search-modal-body">
+        <div class="search-section-title">Popular Developer Queries</div>
+        <div class="search-item" onclick="submitQuickPrompt('How to trigger Bright Data Scraper Studio collector via Node.js with self-healing?')">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>Bright Data DCA Trigger API in Node.js</span>
+          <span class="search-badge">Bright Data SDK</span>
+        </div>
+        <div class="search-item" onclick="submitQuickPrompt('What are the breaking changes in Next.js 15 async Request headers and cookies?')">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>Next.js 15 Async cookies() & headers() migration</span>
+          <span class="search-badge">Next.js 15</span>
+        </div>
+        <div class="search-item" onclick="submitQuickPrompt('How to use LangChain v0.3 tool calling with structured Pydantic output?')">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>LangChain v0.3 bind_tools() syntax</span>
+          <span class="search-badge">LangChain v0.3</span>
+        </div>
+        
+        <div class="search-section-title" style="margin-top: 20px;">Quick Views</div>
+        <div class="search-quick-grid">
+          <div class="quick-nav-pill" onclick="switchNavView('copilot')">💬 RAG Copilot</div>
+          <div class="quick-nav-pill" onclick="switchNavView('doc-sets')">📚 Doc Libraries</div>
+          <div class="quick-nav-pill" onclick="switchNavView('scraper-ops')">🛡️ Scraper Ops & Healing</div>
+          <div class="quick-nav-pill" onclick="switchNavView('api-diff')">⚡ API Breaking Diff</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 3. MAIN APPLICATION INTERFACE ================= -->
+  <div id="app" class="app-layout" style="display: none;">
+    
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar" id="mainSidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo">
+          <div class="brand-avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <span class="brand-name">DocuPulse AI</span>
+            <span class="brand-sub">Self-Healing RAG Engine</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">INTELLIGENCE</div>
+        <button class="nav-item active" data-view="copilot">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <span>RAG Copilot</span>
+          <span class="badge pulse-badge">Live</span>
+        </button>
+        <button class="nav-item" data-view="doc-sets">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          <span>Doc Libraries</span>
+          <span class="badge count-badge">18.4k</span>
+        </button>
+        <button class="nav-item" data-view="api-diff">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <span>API Diff Radar</span>
+          <span class="badge new-badge">New</span>
+        </button>
+
+        <div class="nav-section-title" style="margin-top: 12px;">SCRAPING & PIPELINES</div>
+        <button class="nav-item" data-view="scraper-ops">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <span>Scraper Ops & Health</span>
+        </button>
+        <button class="nav-item" data-view="studio-schema">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+          <span>Studio Schema</span>
+        </button>
+        <button class="nav-item" data-view="api-integrations">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          <span>Developer API</span>
+        </button>
+
+        <div class="nav-section-title" style="margin-top: 12px;">ACCOUNT</div>
+        <button class="nav-item" data-view="settings">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="collector-mini-card">
+          <div class="collector-status-indicator online"></div>
+          <div class="collector-details">
+            <div class="collector-id-label">DOC COLLECTOR</div>
+            <div class="collector-id">c_msxjxlwm78wlkksy4</div>
+          </div>
+          <button class="icon-button-subtle" id="copyCollectorBtn" title="Copy Collector ID">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+      <!-- Top Navigation Header -->
+      <header class="top-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button id="hamburgerBtn" class="hamburger-btn" title="Toggle Sidebar">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          
+          <div class="header-search" id="headerSearchBox">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="globalSearchInput" placeholder="Search documentation, methods, vector chunks... (⌘K)" readonly>
+            <kbd class="search-kbd">⌘K</kbd>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <div class="status-pill healthy">
+            <span class="status-dot green"></span>
+            <span>Self-Healing Engine <strong>Active</strong></span>
+          </div>
+
+          <div class="credit-pill">
+            <span class="credit-coin">⚡</span>
+            <span class="credit-amount">$52.00</span>
+            <span class="credit-label">Credits</span>
+          </div>
+
+          <button id="themeToggleBtn" class="icon-button" title="Toggle Light/Dark Theme">
+            <svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          </button>
+
+          <div class="user-avatar" title="Vasu Kumar • Lead Engineer">
+            <span>VK</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Scrollable Main Content Container -->
+      <main class="content-container">
+
+        <!-- ================= VIEW 1: RAG COPILOT (MAIN INTERACTION) ================= -->
+        <section id="view-copilot" class="page-view active">
+          <div class="copilot-container">
+            
+            <!-- Quick Prompt Suggestions -->
+            <div class="copilot-suggestions">
+              <span class="suggestions-label">Try Grounded Queries:</span>
+              <button class="prompt-chip" onclick="submitQuickPrompt('How to trigger Bright Data Scraper Studio collector via Node.js with self-healing?')">
+                ⚡ Bright Data DCA Trigger in Node.js
+              </button>
+              <button class="prompt-chip" onclick="submitQuickPrompt('What are the breaking changes in Next.js 15 async Request headers and cookies?')">
+                🔥 Next.js 15 Async cookies() & headers()
+              </button>
+              <button class="prompt-chip" onclick="submitQuickPrompt('How to use LangChain v0.3 tool calling with structured Pydantic output?')">
+                🦜 LangChain v0.3 bind_tools() Pattern
+              </button>
+            </div>
+
+            <!-- Chat Message Feed -->
+            <div class="chat-feed" id="chatFeed">
+              <!-- Initial Welcome Message -->
+              <div class="chat-message assistant">
+                <div class="chat-avatar bot-avatar">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                  </svg>
+                </div>
+                <div class="message-content">
+                  <div class="message-header">
+                    <span class="sender-name">DocuPulse RAG Agent</span>
+                    <span class="rag-status-badge green">● Vector Grounded (18,420 Chunks)</span>
+                  </div>
+                  <p>Welcome! I am connected to live, self-healing documentation crawlers powered by <strong>Bright Data Scraper Studio</strong>. Ask me anything about modern frameworks or APIs, and every answer will be backed by direct, line-by-line source citations.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chat Input Toolbar -->
+            <div class="chat-input-wrapper">
+              <form id="chatForm" class="chat-input-form">
+                <textarea id="chatInput" placeholder="Ask a technical question against indexed documentation... (e.g. Next.js 15 async API, Bright Data DCA collector trigger)" rows="2"></textarea>
+                <div class="chat-input-footer">
+                  <div class="rag-filter-pill">
+                    <span>Target Doc:</span>
+                    <select id="docScopeSelect" class="inline-select">
+                      <option value="all">All Managed Docs (4)</option>
+                      <option value="brightdata">Bright Data SDK</option>
+                      <option value="nextjs">Next.js 15</option>
+                      <option value="langchain">LangChain v0.3</option>
+                      <option value="supabase">Supabase</option>
+                    </select>
+                  </div>
+                  <button type="submit" id="sendBtn" class="btn btn-primary btn-send">
+                    <span>Ask RAG</span>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ================= VIEW 2: DOC LIBRARIES & VECTOR STORES ================= -->
+        <section id="view-doc-sets" class="page-view">
+          <div class="view-header">
+            <div>
+              <h2 class="view-title">Managed Documentation Libraries</h2>
+              <p class="view-desc">Continuously scraped documentation sites indexed into high-dimensional vector embeddings with automated DOM drift recovery.</p>
+            </div>
+            <button class="btn btn-primary" id="addDocSetBtn">+ Track New Doc URL</button>
+          </div>
+
+          <!-- Doc Set Cards Grid -->
+          <div class="doc-sets-grid" id="docSetsGrid">
+            <!-- Rendered dynamically by app.js -->
+          </div>
+
+          <!-- Vector Similarity Search Inspector -->
+          <div class="analytics-card" style="margin-top: 24px;">
+            <div class="card-header-row">
+              <div>
+                <h3 class="card-title">Live Vector Similarity Search Inspector</h3>
+                <span class="card-meta">Test cosine similarity distance against indexed documentation embeddings</span>
+              </div>
+            </div>
+            <div class="vector-search-box">
+              <input type="text" id="vectorSearchInput" class="vector-input" placeholder="Type a semantic query to inspect retrieved vector chunks (e.g. 'collector self healing trigger params')...">
+              <button id="runVectorSearchBtn" class="btn btn-primary">Test Retrieval</button>
+            </div>
+            <div id="vectorSearchResults" class="vector-results-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW 3: SCRAPER OPS & SELF-HEALING CONTROL PLANE ================= -->
+        <section id="view-scraper-ops" class="page-view">
+          <div class="ops-hero-card">
+            <div class="ops-hero-left">
+              <div class="ops-badge-row">
+                <span class="badge healthy-badge">🟢 Collector c_msxjxlwm78wlkksy4 Active</span>
+                <span class="badge proxy-badge">🛡️ Bright Data Residential Proxies (US/EU)</span>
+                <span class="badge unblock-badge">⚡ Zero Vector Drift Engine</span>
+              </div>
+              <h2 class="ops-title">Autonomous Self-Healing Documentation Control Plane</h2>
+              <p class="ops-desc">When doc sites migrate frameworks (e.g. Docusaurus ➔ Mintlify), Scraper Studio re-derives content extraction from natural language descriptions without corrupting downstream vector embeddings.</p>
+            </div>
+            <div class="ops-hero-actions">
+              <div style="text-align: center; margin-right: 16px;">
+                <div class="gauge-container">
+                  <svg viewBox="0 0 36 36" style="width: 80px; height: 80px; transform: rotate(-90deg);">
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--bg-surface)" stroke-width="3" />
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--accent-emerald)" stroke-width="3" stroke-dasharray="99, 100" />
+                  </svg>
+                  <div class="gauge-text">99%</div>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: -6px;">Scraper Health</div>
+              </div>
+              <button id="simulateRedesignBtn" class="btn btn-warning">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <span>Simulate Doc Framework Redesign</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ops-layout-grid">
+            <!-- Left Column: Diff Box & Terminal -->
+            <div class="ops-col-main">
+              <!-- Live Self-Healing Interactive Diff Card -->
+              <div class="diff-card">
+                <div class="diff-card-header">
+                  <div class="diff-card-title-group">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <h3 class="diff-title">Documentation DOM Drift Resolution</h3>
+                  </div>
+                  <span id="diffStatusPill" class="badge count-badge">Status: Stable (Zero Drift)</span>
+                </div>
+
+                <div class="diff-columns">
+                  <!-- Broken Selector Box -->
+                  <div class="diff-box broken" id="diffBoxBroken">
+                    <div class="diff-box-head">
+                      <span>BEFORE REDESIGN (Old Docusaurus Selector)</span>
+                      <span class="diff-tag red">Failed on v15 redesign</span>
+                    </div>
+                    <pre class="code-snippet"><code><span class="token-selector">.theme-doc-markdown, .markdown > p</span>
+<span class="token-comment">// Result: Returned 0 content nodes (Empty)</span></code></pre>
+                  </div>
+
+                  <!-- Healed Selector Box -->
+                  <div class="diff-box healed" id="diffBoxHealed">
+                    <div class="diff-box-head">
+                      <span>AFTER SELF-HEALING (Auto-Repaired by Scraper Studio)</span>
+                      <span class="diff-tag green">4,200 Pages Recovered</span>
+                    </div>
+                    <pre class="code-snippet"><code><span class="token-selector-healed">article.prose-doc, .content-wrapper main</span>
+<span class="token-comment">// Auto-repaired via prompt: "Main technical article body and code"</span></code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Live Execution Logs -->
+              <div class="ops-card">
+                <div class="ops-card-header">
+                  <h3 class="card-title">Live Scraper & Vector Indexing Logs</h3>
+                  <button id="clearLogsBtn" class="btn-text">Clear</button>
+                </div>
+                <div class="terminal-container" id="terminalLogs">
+                  <div class="log-line info"><span class="log-time">[2026-08-17 03:10:02]</span> Initialized Bright Data collector session (c_msxjxlwm78wlkksy4)...</div>
+                  <div class="log-line info"><span class="log-time">[2026-08-17 03:10:03]</span> Assigned residential proxy pool (US/EU unblocking node: 142.250.x.x)</div>
+                  <div class="log-line success"><span class="log-time">[2026-08-17 03:10:05]</span> HTTP 200 OK — Crawled 4,200 documentation nodes across target domains.</div>
+                  <div class="log-line success"><span class="log-time">[2026-08-17 03:10:07]</span> Parsed 18,420 vector chunks with text-embedding-3-small.</div>
+                  <div class="log-line info"><span class="log-time">[2026-08-17 03:10:08]</span> Parity verification passed: Zero broken citations detected.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Raw JSON / Markdown Vector Payload -->
+            <div class="ops-col-side">
+              <div class="ops-card json-card">
+                <div class="ops-card-header">
+                  <h3 class="card-title">Structured Vector Payload</h3>
+                  <div class="json-actions">
+                    <button id="copyJsonBtn" class="btn-icon-label">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                      <span>Copy</span>
+                    </button>
+                    <button id="exportCsvBtn" class="btn-icon-label">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                      <span>Export</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="json-viewer-container">
+                  <pre id="jsonPreviewCode"><code>{
+  "collector_id": "c_msxjxlwm78wlkksy4",
+  "doc_domain": "docs.brightdata.com",
+  "status": "indexed",
+  "total_chunks": 18420,
+  "sample_chunk": {
+    "chunk_id": "bd_dca_092",
+    "title": "Triggering DCA Collectors via REST API",
+    "method": "POST /dca/trigger",
+    "similarity_score": 0.984,
+    "source_url": "https://docs.brightdata.com/api-reference/scraper-studio-api/Getting_started_with_the_API",
+    "markdown": "To trigger a Scraper Studio collector programmatically, send an authorized POST request with collector ID and target URLs payload."
+  }
+}</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW 4: API BREAKING CHANGES & DIFF RADAR ================= -->
+        <section id="view-api-diff" class="page-view">
+          <div class="view-header">
+            <div>
+              <h2 class="view-title">API Breaking Changes & Version Diff Radar</h2>
+              <p class="view-desc">Scraper Studio automatically diffs newly crawled documentation against previous revisions to detect deprecated methods and breaking API shifts.</p>
+            </div>
+            <button class="btn btn-primary" id="runDiffSyncBtn">Sync Live Diffs</button>
+          </div>
+
+          <div class="diff-radar-container">
+            <!-- Diff Card 1: Next.js 15 -->
+            <div class="radar-card">
+              <div class="radar-card-header">
+                <div class="radar-title-group">
+                  <span class="lib-badge nextjs">Next.js 15.0.0</span>
+                  <h3>Async Request Headers & Cookies Migration</h3>
+                </div>
+                <span class="diff-status-pill breaking">Breaking Change Detected</span>
+              </div>
+              <p class="radar-desc">The runtime methods <code>cookies()</code>, <code>headers()</code>, and <code>params</code> are now asynchronous Promises.</p>
+              
+              <div class="code-diff-view">
+                <div class="diff-pane old-pane">
+                  <div class="pane-label">Deprecated (Next.js 14)</div>
+                  <pre><code><span class="code-del">- import { cookies } from 'next/headers';</span>
+<span class="code-del">- const cookieStore = cookies();</span>
+<span class="code-del">- const token = cookieStore.get('token');</span></code></pre>
+                </div>
+                <div class="diff-pane new-pane">
+                  <div class="pane-label">Current (Next.js 15 Scraped Doc)</div>
+                  <pre><code><span class="code-add">+ import { cookies } from 'next/headers';</span>
+<span class="code-add">+ const cookieStore = await cookies();</span>
+<span class="code-add">+ const token = cookieStore.get('token');</span></code></pre>
+                </div>
+              </div>
+            </div>
+
+            <!-- Diff Card 2: Bright Data SDK -->
+            <div class="radar-card">
+              <div class="radar-card-header">
+                <div class="radar-title-group">
+                  <span class="lib-badge brightdata">Bright Data SDK v2.4</span>
+                  <h3>Collector DCA Trigger with Self-Healing Parameter</h3>
+                </div>
+                <span class="diff-status-pill updated">Feature Update</span>
+              </div>
+              <p class="radar-desc">Added <code>enable_self_healing: true</code> flag in DCA execution triggers for automatic fallback selector derivation.</p>
+              
+              <div class="code-diff-view">
+                <div class="diff-pane new-pane" style="grid-column: 1 / -1;">
+                  <div class="pane-label">Live API Syntax (Extracted via Scraper Studio)</div>
+                  <pre><code><span class="code-add">+ POST https://api.brightdata.com/dca/trigger?collector=c_msxjxlwm78wlkksy4&queue_next=1</span>
+<span class="code-add">+ Payload: [{"url": "https://example.com", "auto_heal": true}]</span></code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW 5: STUDIO SCHEMA BUILDER ================= -->
+        <section id="view-studio-schema" class="page-view">
+          <div class="view-header">
+            <div>
+              <h2 class="view-title">Scraper Studio Documentation Schema Builder</h2>
+              <p class="view-desc">Natural language schema prompts defined for extracting structured documentation markdown.</p>
+            </div>
+            <button class="btn btn-primary" id="addFieldBtn">+ Add Schema Field</button>
+          </div>
+
+          <!-- Workflow Visualizer -->
+          <div class="workflow-diagram">
+            <div class="workflow-step">
+              <div class="workflow-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></div>
+              <span>1. Define Natural Prompts</span>
+            </div>
+            <div class="workflow-arrow"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+            <div class="workflow-step">
+              <div class="workflow-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg></div>
+              <span>2. Scraper Studio Collector</span>
+            </div>
+            <div class="workflow-arrow"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+            <div class="workflow-step">
+              <div class="workflow-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div>
+              <span>3. Vector RAG Chunks</span>
+            </div>
+            <div class="workflow-arrow"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+            <div class="workflow-step">
+              <div class="workflow-icon" style="color: var(--accent-emerald);"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+              <span style="color: var(--accent-emerald);">4. Self-Healing Zero Drift</span>
+            </div>
+          </div>
+
+          <div class="schema-table-card">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Field Name</th>
+                  <th>Type</th>
+                  <th>Natural Language Description (Prompt)</th>
+                  <th>Fallback Selector</th>
+                  <th>Required</th>
+                </tr>
+              </thead>
+              <tbody id="schemaTableBody">
+                <tr>
+                  <td><code>doc_title</code></td>
+                  <td><span class="type-badge text">Text</span></td>
+                  <td>Main API method headline or documentation page title</td>
+                  <td><code>h1.doc-title</code></td>
+                  <td><span class="badge green">Yes</span></td>
+                </tr>
+                <tr>
+                  <td><code>article_markdown</code></td>
+                  <td><span class="type-badge text">Markdown</span></td>
+                  <td>Full technical explanation, parameter tables, and guide content</td>
+                  <td><code>article.prose-doc</code></td>
+                  <td><span class="badge green">Yes</span></td>
+                </tr>
+                <tr>
+                  <td><code>code_snippets</code></td>
+                  <td><span class="type-badge array">Array&lt;Code&gt;</span></td>
+                  <td>All syntax-highlighted code blocks with programming languages</td>
+                  <td><code>pre > code</code></td>
+                  <td><span class="badge green">Yes</span></td>
+                </tr>
+                <tr>
+                  <td><code>api_signature</code></td>
+                  <td><span class="type-badge text">Code String</span></td>
+                  <td>Function or REST endpoint signature (e.g. POST /dca/trigger)</td>
+                  <td><code>.api-badge, code.signature</code></td>
+                  <td><span class="badge green">Yes</span></td>
+                </tr>
+                <tr>
+                  <td><code>version_tag</code></td>
+                  <td><span class="type-badge text">String</span></td>
+                  <td>Version indicator or release tag (e.g. v15.0, v2.4)</td>
+                  <td><code>.version-selector</code></td>
+                  <td><span class="badge gray">No</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= VIEW 6: DEVELOPER API ================= -->
+        <section id="view-api-integrations" class="page-view">
+          <div class="view-header">
+            <div>
+              <h2 class="view-title">Developer API & Integration</h2>
+              <p class="view-desc">Trigger Scraper Studio collector runs and query vector RAG endpoints programmatically.</p>
+            </div>
+          </div>
+
+          <div class="api-grid">
+            <div class="api-card">
+              <div class="api-tabs">
+                <button class="api-tab active" data-lang="curl">cURL</button>
+                <button class="api-tab" data-lang="node">Node.js (LangChain)</button>
+                <button class="api-tab" data-lang="python">Python (LlamaIndex)</button>
+              </div>
+              <div class="api-code-body">
+                <pre><code id="apiCodeSnippet">curl -X POST "https://api.brightdata.com/dca/trigger?collector=c_msxjxlwm78wlkksy4&queue_next=1" \
+  -H "Authorization: Bearer YOUR_BRIGHT_DATA_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '[{"url": "https://docs.brightdata.com/datasets/scraper-studio/overview"}]'</code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW 7: SETTINGS ================= -->
+        <section id="view-settings" class="page-view">
+          <div class="view-header">
+            <div>
+              <h2 class="view-title">Settings & Integration Keys</h2>
+              <p class="view-desc">Configure Bright Data API credentials, Vector DB sync parameters, and notification alerts.</p>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3 class="settings-heading">Bright Data API Connection</h3>
+              <div class="setting-row">
+                <label>API Key</label>
+                <div class="api-key-box">
+                  <input type="password" value="bd_api_9f83kd01948294729184729" readonly class="input-readonly">
+                  <button class="btn btn-secondary" onclick="showToast('API Key copied to clipboard!', 'success')">Copy</button>
+                </div>
+              </div>
+              <div class="setting-row">
+                <label>Active Account</label>
+                <div class="account-badge">
+                  <span class="status-dot green"></span>
+                  <span>vasukumar@omnipulse.ai • <strong>$52.00 Active Balance</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <h3 class="settings-heading">Vector Embedding Store</h3>
+              <div class="setting-row">
+                <label>Vector Store Provider</label>
+                <select class="custom-select" style="width: 100%;">
+                  <option>ChromaDB (Local In-Memory / Persistent)</option>
+                  <option>Pinecone Serverless</option>
+                  <option>Supabase pgvector</option>
+                </select>
+              </div>
+              <div class="setting-row">
+                <label>Embedding Model</label>
+                <input type="text" value="text-embedding-3-small (1536 dimensions)" readonly class="input-readonly">
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- ================= SLIDE-OVER CITATION INSPECTION DRAWER ================= -->
+    <div id="drawerOverlay" class="drawer-overlay"></div>
+    <aside id="citationDrawer" class="ai-drawer">
+      <div class="drawer-header">
+        <div class="drawer-title-group">
+          <span class="ai-pill">📖 Verified Scraped Documentation Source</span>
+          <h3 class="drawer-product-title" id="drawerDocTitle">Doc Title</h3>
+        </div>
+        <button id="closeDrawerBtn" class="icon-button" title="Close Drawer">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Match Score Card -->
+        <div class="ai-verdict-box">
+          <div class="verdict-header">
+            <span class="verdict-icon">🎯</span>
+            <div>
+              <div class="verdict-label">VECTOR COSINE SIMILARITY</div>
+              <div class="verdict-main" id="drawerMatchScore">98.4% Match Score</div>
+            </div>
+          </div>
+          <p class="verdict-explanation" id="drawerMatchExplanation">
+            Retrieved via top-K semantic search against Bright Data documentation index chunk #bd_dca_092.
+          </p>
+        </div>
+
+        <!-- Raw Scraped Markdown Passage -->
+        <div class="drawer-section">
+          <h4 class="section-heading">Extracted Markdown Passage</h4>
+          <div class="doc-markdown-box" id="drawerMarkdownContent">
+            <!-- Rendered by app.js -->
+          </div>
+        </div>
+
+        <!-- Source Provenance -->
+        <div class="drawer-section citation-box">
+          <div class="citation-head">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span>Data Provenance & Link</span>
+          </div>
+          <div class="citation-text" id="drawerProvenance">
+            Scraped via Bright Data Scraper Studio Collector <code>c_msxjxlwm78wlkksy4</code>.
+          </div>
+          <a href="#" id="drawerSourceLink" target="_blank" class="btn btn-secondary" style="margin-top: 10px; width: 100%; justify-content: center;">
+            Open Official Documentation URL ↗
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

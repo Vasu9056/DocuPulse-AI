@@ -1,0 +1,80 @@
+================================================================================
+DOCUPULSE AI — SELF-HEALING DOCUMENTATION RAG & DEVELOPER COPILOT
+INTO THE SCRAPE-VERSE HACKATHON (WEMAKEDEVS & BRIGHT DATA)
+================================================================================
+
+PROJECT GOAL:
+Build "DocuPulse AI" — an autonomous, self-healing RAG (Retrieval-Augmented 
+Generation) knowledge platform that crawls fast-moving developer documentation 
+(Next.js 15, Bright Data SDK, LangChain, Supabase) using Bright Data Scraper Studio.
+When doc sites redesign (e.g. Docusaurus to Mintlify), the self-healing scraper 
+prevents broken vector embeddings, providing developers with zero-hallucination AI 
+answers backed by verified, clickable citations.
+
+================================================================================
+STEP-BY-STEP EXECUTION PROCESS
+================================================================================
+
+STEP 1: BRIGHT DATA SETUP & CUSTOM DOC SCRAPER
+--------------------------------------------------
+1. Claim $50 Hackathon Credits:
+   - Bright Data Dashboard -> Billing -> Promo code "wemakedevs".
+2. Create Custom Documentation Scraper in Scraper Studio:
+   - Target Doc URLs (e.g., https://docs.brightdata.com, https://nextjs.org/docs).
+   - Natural Language Schema:
+     * `doc_title`: "Main documentation page title or API name"
+     * `article_content`: "Full technical explanation, markdown content, and guide text"
+     * `code_blocks`: "All code examples and snippet syntax"
+     * `breadcrumbs`: "Navigation path and category hierarchy"
+     * `version_tag`: "Library version (e.g. v2.4, v15.0)"
+3. Copy Collector ID (e.g., c_doc_8f2a91) & API Token.
+
+
+STEP 2: BACKEND & RAG PIPELINE
+--------------------------------------------------
+1. Set up Backend (Node.js/Express or Python/FastAPI).
+2. Connect Bright Data Collector API to fetch clean documentation markdown/JSON.
+3. Vector Indexing Pipeline:
+   - Chunk markdown by header/API method.
+   - Generate embeddings (text-embedding-3-small).
+   - Store in Vector Store (ChromaDB / SQLite-VSS / pgvector).
+4. Build API Endpoints:
+   - POST /api/chat/rag       -> Queries vector DB, retrieves top-K chunks, generates answer with citations.
+   - GET  /api/doc-stores     -> Returns indexed doc libraries, chunk count, and freshness.
+   - GET  /api/scraper-health -> Returns collector status, DOM drift events, self-heal logs.
+   - GET  /api/breaking-diff  -> Returns detected API changes between doc versions.
+
+
+STEP 3: FRONTEND UI & INTERACTIVE RAG EXPERIENCE
+--------------------------------------------------
+1. Build Modern SaaS UI (Desktop + Mobile Responsive).
+2. Interactive RAG Chatbot:
+   - Prompt input with quick prompt chips.
+   - Markdown streaming answers with syntax-highlighted code.
+   - Verified Citation Pills (click to inspect source snippet in slide-over drawer).
+   - Confidence and vector cosine similarity score meters.
+3. Knowledge Base & Vector Stores Screen:
+   - Managed doc set cards (Next.js 15, Bright Data SDK, LangChain, Supabase).
+   - Vector chunk metrics and search similarity tester.
+4. Scraper Ops & Self-Healing Health Plane (Hackathon Centerpiece):
+   - "Simulate Doc Framework Redesign" button demonstrating real-time selector repair.
+   - Before/After selector diff card.
+   - Live scraper execution log terminal.
+5. Breaking Changes & API Diff Radar:
+   - Visual comparison of newly added/deprecated methods from live doc crawls.
+
+
+STEP 4: SELF-HEALING & RESILIENCE DEMONSTRATION
+--------------------------------------------------
+1. Demonstrate what happens when a documentation site migrates frameworks (e.g. Docusaurus to Mintlify).
+2. Show that traditional scrapers return empty content, breaking vector search.
+3. Show how Bright Data Scraper Studio re-derives selectors using field descriptions, keeping the RAG agent 100% accurate with Zero Vector Drift.
+
+
+STEP 5: FINAL PACKAGING & SUBMISSION
+--------------------------------------------------
+1. Public GitHub Repository with clean code and .env.example.
+2. README.md with system architecture diagram, setup instructions, and Scraper Studio details.
+3. Sample Structured JSON/Markdown output files.
+4. 3–5 Minute Video Demo highlighting Scraper Studio, Self-Healing, and live RAG Q&A.
+================================================================================

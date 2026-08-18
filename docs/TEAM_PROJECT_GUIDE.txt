@@ -1,0 +1,182 @@
+================================================================================
+INTO THE SCRAPE-VERSE HACKATHON (WEMAKEDEVS & BRIGHT DATA)
+TEAM PROJECT IDEAS COMPARISON & STEP-BY-STEP EXECUTION WORKFLOW
+================================================================================
+Event Dates: August 17 – August 23, 2026 (7 Days)
+Team Size: Solo or up to 4 members
+Free Credits: $50 Promo Code: "wemakedevs" (in Bright Data Billing)
+Grand Prize: $5,000 or NVIDIA DGX Spark AI Supercomputer (plus iPads & Keychrons)
+================================================================================
+
+
+================================================================================
+PART 1: PROJECT IDEAS DEFINITION & COMPARISON
+================================================================================
+
+--------------------------------------------------------------------------------
+OPTION 1: "OmniPulse" — Multi-Store E-Commerce & Price Intelligence Tracker
+--------------------------------------------------------------------------------
+• WHAT IS IT?
+  A real-time price tracking and deal intelligence dashboard that monitors tech
+  products (laptops, phones, headphones) across 3-4 e-commerce platforms (Amazon, 
+  BestBuy, B&H, MicroCenter).
+
+• HOW BRIGHT DATA IS USED:
+  - Scraper Studio extracts Title, Current Price, Strikethrough Price, Stock, Rating.
+  - When an e-commerce site redesigns product cards, Self-Healing repairs selectors.
+
+• KEY FEATURES:
+  - Product Intelligence Grid & Table view.
+  - Price Drop History & Discount Trend Charts.
+  - AI Deal Score & Arbitrage Leaderboard.
+  - Price drop alert triggers.
+
+• PROS & CONS:
+  [+] Super visual, intuitive, great for "Best UI" (Suit-Up Track).
+  [-] Common theme in hackathons; less innovative on the AI/RAG front.
+
+
+--------------------------------------------------------------------------------
+OPTION 2: "DocuPulse AI" — Self-Healing Documentation RAG & Developer Copilot
+[RECOMMENDED FOR GRAND PRIZE]
+--------------------------------------------------------------------------------
+• WHAT IS IT?
+  An autonomous AI Developer Copilot connected to live, self-healing documentation
+  crawlers (Next.js 15, Bright Data SDK, LangChain v0.3, Supabase). It solves AI
+  hallucinations by providing up-to-date answers backed by verified, clickable citations.
+
+• HOW BRIGHT DATA IS USED:
+  - Scraper Studio continuously crawls fast-changing documentation websites and
+    extracts clean markdown, code snippets, and API method signatures.
+  - When doc sites migrate frameworks (e.g. Docusaurus to Mintlify/Nextra), Scraper
+    Studio's Self-Healing Engine automatically re-derives extraction selectors from
+    natural-language prompts so Vector DB embeddings never break.
+
+• KEY FEATURES:
+  - Interactive RAG Chat with syntax-highlighted code & copy button.
+  - Verified Source Citation Badges (clicking opens slide-over drawer with raw source).
+  - Managed Doc Libraries with live Vector Chunk count & Cosine Similarity Inspector.
+  - API Breaking Changes Radar (visual diff of newly deprecated vs new APIs).
+  - Scraper Ops Control Plane with live "Simulate Doc Framework Redesign" demo.
+
+• WHY IT IS THE STRONGEST CONTENDER:
+  - Targets the $5,000 NVIDIA DGX Spark AI Grand Prize directly.
+  - Demonstrates high technical depth: Scraper Studio -> Embeddings -> Vector RAG -> UI.
+  - Solves a real, painful problem every developer and judge experiences daily.
+
+
+--------------------------------------------------------------------------------
+SUMMARY COMPARISON TABLE
+--------------------------------------------------------------------------------
+Feature / Metric            Option 1: Price Tracker      Option 2: DocuPulse RAG (★)
+--------------------------------------------------------------------------------
+Theme / Domain              E-Commerce & Retail          AI, RAG & Developer Tools
+Innovation Score            7.5 / 10                     9.8 / 10
+Hackathon Alignment         High (Price Intelligence)    Highest (Documentation to RAG)
+Self-Healing Use Case       Product card class changes   Doc layout/framework migration
+Judges' Wow Factor          Clean UI & Charts            Zero-Hallucination AI + Citations
+Target Prize                Suit-Up (Best UI - iPad)     Web-Slinger Grand Prize ($5,000)
+================================================================================
+
+
+================================================================================
+PART 2: STEP-BY-STEP FLOW-WISE EXECUTION ROADMAP
+================================================================================
+
+PHASE 1: BRIGHT DATA SETUP & CUSTOM COLLECTOR (DAY 1)
+--------------------------------------------------------------------------------
+1. Sign up on Bright Data (https://brightdata.com/cp).
+2. Go to Billing -> Enter promo code "wemakedevs" to claim $50 credits.
+3. Open "Scraper Studio" -> Click "+ Create Custom Scraper".
+4. Enter target documentation / product URLs.
+5. Define Schema in plain English:
+   - For DocuPulse: `doc_title`, `article_markdown`, `code_snippets`, `api_signature`
+   - For PriceRadar: `title`, `current_price`, `rating`, `stock_status`, `image_url`
+6. Click "Preview / Test", then "Save & Deploy" to get your Collector ID (e.g. c_doc_8f2a91).
+7. Generate your Bright Data API Token.
+
+
+PHASE 2: BACKEND & DATA / VECTOR PIPELINE (DAYS 2–3)
+--------------------------------------------------------------------------------
+1. Set up Backend project (Node.js/Express or Python/FastAPI).
+2. Connect to Bright Data REST API:
+   - Endpoint: POST https://api.brightdata.com/dca/trigger?collector=c_doc_8f2a91
+   - Fetch structured JSON output payload.
+3. For Option 2 (RAG):
+   - Chunk markdown by headers/methods.
+   - Generate embeddings (text-embedding-3-small) and store in Vector DB (Chroma/SQLite).
+   - Create RAG query endpoint that returns AI answer + top-K source citations.
+4. For Option 1 (Price Tracker):
+   - Store historical prices in SQLite/PostgreSQL.
+   - Create endpoints for filtered product list, price analytics, and deal scores.
+
+
+PHASE 3: FRONTEND UI & INTERACTIVE DASHBOARD (DAYS 4–5)
+--------------------------------------------------------------------------------
+1. Build modern, responsive Web Application (Desktop 1440px + Mobile).
+2. For Option 2 (DocuPulse RAG):
+   - Interactive Chat UI with prompt suggestions and markdown code blocks.
+   - Slide-over Citation Drawer showing extracted raw documentation snippet.
+   - Doc Libraries grid with vector chunk counts.
+   - Scraper Ops Health Dashboard with live console logs.
+   - API Breaking Changes visual diff viewer.
+3. For Option 1 (Price Tracker):
+   - Product cards with discount badges and stock indicators.
+   - Interactive Price Trend Line Charts & Deal Score Matrix.
+   - Scraper Health Status widget.
+
+
+PHASE 4: SELF-HEALING DEMONSTRATION & TESTING (DAY 6)
+--------------------------------------------------------------------------------
+1. Test end-to-end data flow: Scraper Studio -> Backend -> Frontend.
+2. Build the live Self-Healing demonstration:
+   - Simulate a website DOM structure redesign.
+   - Show how the old selector returns null.
+   - Show how Scraper Studio re-derives the new selector from the prompt with 0 downtime.
+3. Verify mobile responsiveness and cross-browser performance.
+
+
+PHASE 5: PACKAGING, DEMO VIDEO & SUBMISSION (DAY 7 - DEADLINE: AUG 23)
+--------------------------------------------------------------------------------
+1. Push all source code to a public GitHub repository.
+2. Write a comprehensive README.md:
+   - Problem statement & solution.
+   - Architecture diagram (Mermaid).
+   - Clear explanation of how Bright Data Scraper Studio & Self-Healing are used.
+   - Local setup & execution instructions.
+3. Export sample structured JSON/CSV output and place in repo.
+4. Record a 3–5 Minute Video Demo:
+   - Part 1 (0:00 - 0:45): Problem pitch (Outdated docs & AI hallucinations).
+   - Part 2 (0:45 - 1:45): Bright Data Scraper Studio & Custom Collector setup.
+   - Part 3 (1:45 - 3:00): Live application demo (Chat, Citations, Vector Store).
+   - Part 4 (3:00 - 4:00): Live Self-Healing demonstration (DOM redesign recovery).
+5. Submit project on the official WeMakeDevs hackathon page.
+================================================================================
+
+
+================================================================================
+PART 3: TEAM ROLES & WORK DISTRIBUTION (FOR 4 MEMBERS)
+================================================================================
+
+• MEMBER 1: DATA & SCRAPER LEAD
+  - Bright Data account setup & promo code redemption.
+  - Create and configure custom scraper in Scraper Studio.
+  - Define natural language schema and test self-healing selector derivation.
+  - Export Collector ID and API integration triggers.
+
+• MEMBER 2: BACKEND & PIPELINE LEAD
+  - Build API server (Node.js/FastAPI).
+  - Integrate Bright Data REST API to fetch live scraped data.
+  - Implement Vector DB / embedding storage or database persistence.
+  - Build API endpoints for Frontend consumption.
+
+• MEMBER 3: FRONTEND & UI LEAD
+  - Build the web application interface (Chat UI, Cards, Modals, Drawers).
+  - Implement interactive filters, search (Cmd+K), and theme switcher.
+  - Integrate backend API responses into the UI.
+
+• MEMBER 4: UI POLISH, DOCUMENTATION & VIDEO LEAD
+  - Visual polish, micro-animations, and responsive testing.
+  - Write detailed GitHub README.md and collect sample output JSON files.
+  - Script, record, and edit the final 3-5 minute video demo for judging.
+================================================================================
