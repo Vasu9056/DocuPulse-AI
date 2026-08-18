@@ -13,18 +13,17 @@ on:
       - "backend/**"
       - ".github/workflows/backend-ci-cd.yml"
 
-# Prevent duplicate runs for the same branch / PR
 concurrency:
   group: backend-${{ github.ref }}
   cancel-in-progress: true
 
-# Minimum required GitHub permissions
 permissions:
   contents: read
 
 env:
   NODE_VERSION: "20"
   PRODUCTION_URL: https://docupulse-ai.onrender.com
+  LOCAL_URL: http://localhost:3001
 
 jobs:
 
@@ -54,9 +53,15 @@ jobs:
       - name: 📦 Install Dependencies
         run: npm ci
 
+      # --------------------------------------------------------------
+      # ESLint - mandatory
+      # --------------------------------------------------------------
       - name: 🧹 Run ESLint
         run: npm run lint
 
+      # --------------------------------------------------------------
+      # JavaScript syntax validation
+      # --------------------------------------------------------------
       - name: 🔍 Check JavaScript Syntax
         shell: bash
         run: |
@@ -68,7 +73,7 @@ jobs:
           while IFS= read -r file; do
             FILES=$((FILES + 1))
 
-            if node --check "$file" 2>/dev/null; then
+            if node --check "$file"; then
               echo "  ✅ $file"
             else
               echo "  ❌ $file"
@@ -100,6 +105,9 @@ jobs:
 
           echo "✅ All JavaScript files passed syntax validation"
 
+      # --------------------------------------------------------------
+      # TypeScript validation if applicable
+      # --------------------------------------------------------------
       - name: 🔤 TypeScript Validation
         shell: bash
         run: |
@@ -139,12 +147,18 @@ jobs:
       - name: 📦 Install Dependencies
         run: npm ci
 
+      # --------------------------------------------------------------
+      # npm audit - BLOCKING
+      # --------------------------------------------------------------
       - name: 🛡️ Run npm Security Audit
         run: |
           echo "🔍 Running npm security audit..."
           npm audit --audit-level=high
           echo "✅ No high/critical vulnerabilities detected"
 
+      # --------------------------------------------------------------
+      # Secret scanning
+      # --------------------------------------------------------------
       - name: 🔐 Scan Backend Source for Secrets
         working-directory: .
         shell: bash
@@ -163,7 +177,6 @@ jobs:
           )
 
           for PATTERN in "${PATTERNS[@]}"; do
-
             if grep -RInE \
               --exclude-dir=node_modules \
               --exclude-dir=coverage \
@@ -176,7 +189,6 @@ jobs:
               echo "❌ Potential hardcoded secret detected!"
               FOUND=1
             fi
-
           done
 
           if [ "$FOUND" -eq 1 ]; then
@@ -188,31 +200,48 @@ jobs:
 
           echo "✅ No known hardcoded secret patterns detected"
 
-      - name: 🔒 Verify .env Is Not Tracked
+      # --------------------------------------------------------------
+      # Verify environment files are not tracked
+      # --------------------------------------------------------------
+      - name: 🔒 Verify Environment Files Are Not Tracked
         working-directory: .
         shell: bash
         run: |
-          echo "🔍 Checking whether environment files are tracked..."
+          echo "🔍 Checking tracked environment files..."
 
           TRACKED_ENV=$(git ls-files | grep -E '(^|/)\.env($|\.)' || true)
 
           if [ -n "$TRACKED_ENV" ]; then
-            echo "❌ CRITICAL: Environment file is tracked by Git:"
+            echo "❌ CRITICAL: Environment files are tracked:"
             echo "$TRACKED_ENV"
             exit 1
           fi
 
-          echo "✅ No .env files are tracked"
+          echo "✅ No environment files are tracked"
 
+      # --------------------------------------------------------------
+      # Verify .env is gitignored
+      # --------------------------------------------------------------
       - name: 🔒 Verify .env Is Gitignored
         working-directory: .
         shell: bash
         run: |
           echo "🔍 Checking .env protection..."
 
-          if grep -Eq '(^|/)\.env($|[./*])' .gitignore 2>/dev/null \
-             || grep -Eq '(^|/)\.env($|[./*])' backend/.gitignore 2>/dev/null; then
+          ROOT_IGNORE=0
+          BACKEND_IGNORE=0
 
+          if [ -f ".gitignore" ] &&
+             grep -Eq '(^|/)\.env($|[./*])' .gitignore; then
+            ROOT_IGNORE=1
+          fi
+
+          if [ -f "backend/.gitignore" ] &&
+             grep -Eq '(^|/)\.env($|[./*])' backend/.gitignore; then
+            BACKEND_IGNORE=1
+          fi
+
+          if [ "$ROOT_IGNORE" -eq 1 ] || [ "$BACKEND_IGNORE" -eq 1 ]; then
             echo "✅ .env is protected by .gitignore"
           else
             echo "❌ .env is not properly gitignored"
@@ -221,7 +250,7 @@ jobs:
 
 
   # ====================================================================
-  # JOB 3: Test Backend Modules & API
+  # JOB 3: Backend Tests & Local API Smoke Tests
   # ====================================================================
   test:
     name: 🧪 Test Services & API
@@ -251,15 +280,22 @@ jobs:
       - name: 📦 Install Dependencies
         run: npm ci
 
+      - name: 🌐 Ensure cURL & tools available
+        run: |
+          which curl || (sudo apt-get update && sudo apt-get install -y curl)
+
+      # --------------------------------------------------------------
+      # Validate backend modules
+      # --------------------------------------------------------------
       - name: 🧪 Validate Backend Service Modules
         run: |
           node <<'NODE'
           const modules = [
-            { name: "Config",         path: "./src/config" },
-            { name: "API Routes",     path: "./src/routes" },
+            { name: "Config", path: "./src/config" },
+            { name: "API Routes", path: "./src/routes" },
             { name: "BrightData Svc", path: "./src/services/brightdata.service" },
-            { name: "Vector Svc",     path: "./src/services/vector.service" },
-            { name: "RAG Svc",        path: "./src/services/rag.service" }
+            { name: "Vector Svc", path: "./src/services/vector.service" },
+            { name: "RAG Svc", path: "./src/services/rag.service" }
           ];
 
           console.log("");
@@ -282,16 +318,19 @@ jobs:
 
           console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
           console.log(
-            `  Total: ${passed + failed} | ` +
-            `✅ Passed: ${passed} | ❌ Failed: ${failed}`
+            `Total: ${passed + failed} | ` +
+            `Passed: ${passed} | ` +
+            `Failed: ${failed}`
           );
-          console.log("");
 
           if (failed > 0) {
             process.exit(1);
           }
           NODE
 
+      # --------------------------------------------------------------
+      # Start backend and run local API smoke tests
+      # --------------------------------------------------------------
       - name: 🌐 Start Backend & Run API Smoke Tests
         shell: bash
         run: |
@@ -303,7 +342,8 @@ jobs:
             echo ""
             echo "🧹 Cleaning up backend process..."
 
-            if [ -n "${SERVER_PID:-}" ] && kill -0 "$SERVER_PID" 2>/dev/null; then
+            if [ -n "${SERVER_PID:-}" ] &&
+               kill -0 "$SERVER_PID" 2>/dev/null; then
               kill "$SERVER_PID" 2>/dev/null || true
               wait "$SERVER_PID" 2>/dev/null || true
             fi
@@ -338,7 +378,7 @@ jobs:
               -o /dev/null \
               -w "%{http_code}" \
               --max-time 3 \
-              "http://localhost:3001/" || true)
+              "${LOCAL_URL}/" || true)
 
             echo "Attempt $i/30 → HTTP $STATUS"
 
@@ -377,16 +417,13 @@ jobs:
             local STATUS
 
             if [ "$METHOD" = "GET" ]; then
-
               STATUS=$(curl \
                 -s \
                 -o /tmp/api-response \
                 -w "%{http_code}" \
                 --max-time 15 \
-                "http://localhost:3001${PATH}" || true)
-
+                "${LOCAL_URL}${PATH}" || true)
             else
-
               STATUS=$(curl \
                 -s \
                 -o /tmp/api-response \
@@ -395,8 +432,7 @@ jobs:
                 -X "$METHOD" \
                 -H "Content-Type: application/json" \
                 -d "$DATA" \
-                "http://localhost:3001${PATH}" || true)
-
+                "${LOCAL_URL}${PATH}" || true)
             fi
 
             printf "  %-6s %-30s → %-3s" "$METHOD" "$PATH" "$STATUS"
@@ -414,10 +450,10 @@ jobs:
             fi
           }
 
-          test_endpoint "GET" "/"                  "200"
-          test_endpoint "GET" "/api/doc-stores"    "200"
+          test_endpoint "GET" "/" "200"
+          test_endpoint "GET" "/api/doc-stores" "200"
           test_endpoint "GET" "/api/scraper/health" "200"
-          test_endpoint "GET" "/api/breaking-diff"  "200"
+          test_endpoint "GET" "/api/breaking-diff" "200"
 
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "Total: $((PASSED + FAILED))"
@@ -455,8 +491,16 @@ jobs:
           echo ""
           echo "⚙️ Render will deploy main automatically"
           echo "🌐 Production: ${{ env.PRODUCTION_URL }}"
+          echo "📝 Commit: ${{ github.sha }}"
           echo "========================================================"
 
+      - name: 🌐 Ensure cURL & tools available
+        run: |
+          which curl || (sudo apt-get update && sudo apt-get install -y curl)
+
+      # --------------------------------------------------------------
+      # Wait for production to become available
+      # --------------------------------------------------------------
       - name: ⏳ Wait for Production Deployment
         shell: bash
         run: |
@@ -494,6 +538,9 @@ jobs:
           echo "❌ Production service did not become healthy"
           exit 1
 
+      # --------------------------------------------------------------
+      # Production API health checks
+      # --------------------------------------------------------------
       - name: 🏥 Production API Health Check
         shell: bash
         run: |
@@ -548,6 +595,9 @@ jobs:
 
           echo "✅ All production API health checks passed"
 
+      # --------------------------------------------------------------
+      # Verify production root response
+      # --------------------------------------------------------------
       - name: 📡 Verify Production API Response
         shell: bash
         run: |
@@ -584,6 +634,9 @@ jobs:
             exit 1
           fi
 
+      # --------------------------------------------------------------
+      # Final success
+      # --------------------------------------------------------------
       - name: 🎉 Production Deployment Verified
         run: |
           echo ""
