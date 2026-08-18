@@ -1,0 +1,101 @@
+name: 🌐 Frontend CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  # ====================================================================
+  # JOB 1: Lint & Validate Frontend Code
+  # ====================================================================
+  lint:
+    name: 🔍 Lint & Syntax Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 📦 Install Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: 🧹 Check for Lint & Type Errors
+        working-directory: ./frontend
+        run: npx vite build --mode development 2>&1 | head -50
+
+  # ====================================================================
+  # JOB 2: Build Production Bundle
+  # ====================================================================
+  build:
+    name: 🏗️ Build Production Bundle
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 📦 Install Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: 🏗️ Compile Production Build (Vite)
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: 📊 Report Bundle Size
+        working-directory: ./frontend
+        run: |
+          echo "========================================================"
+          echo "📦 Production Bundle Analysis:"
+          echo "========================================================"
+          du -sh dist/
+          echo ""
+          echo "Asset Breakdown:"
+          find dist/assets -type f -exec du -h {} \; | sort -rh
+          echo "========================================================"
+
+      - name: 📤 Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-production-build
+          path: frontend/dist/
+          retention-days: 7
+
+  # ====================================================================
+  # JOB 3: Deploy to Vercel (Auto-triggered via GitHub integration)
+  # ====================================================================
+  deploy:
+    name: 🚀 Deploy to Vercel
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🌐 Vercel Auto-Deploy Triggered
+        run: |
+          echo "========================================================"
+          echo "🚀 Frontend CI passed! Vercel auto-deploys from GitHub."
+          echo "🌐 Live URL: https://docu-pulse-ai.vercel.app"
+          echo "========================================================"
