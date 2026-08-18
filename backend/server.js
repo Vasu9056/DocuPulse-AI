@@ -21,6 +21,24 @@ app.use((req, res, next) => {
   next();
 });
 
+// Root Health & Information Route
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    service: 'DocuPulse AI Backend API',
+    collector_id: config.brightData.collectorId,
+    documentation: 'Self-Healing Documentation RAG & Developer Copilot',
+    endpoints: [
+      'POST /api/chat/rag',
+      'POST /api/vector-search',
+      'POST /api/scraper/trigger',
+      'GET  /api/scraper/health',
+      'GET  /api/breaking-diff',
+      'GET  /api/doc-stores'
+    ]
+  });
+});
+
 // Mount API Routes under /api
 app.use('/api', apiRoutes);
 
