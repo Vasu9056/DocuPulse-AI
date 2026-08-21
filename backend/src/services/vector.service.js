@@ -9,28 +9,48 @@ class VectorService {
   }
 
   /**
-   * Search for top-K similar chunks based on cosine / keyword score
+   * Search for top-K similar chunks based on cosine / keyword score and scope filtering
    */
   searchSimilar(query, scope = 'all', topK = 2) {
-    const lowerQuery = (query || '').toLowerCase();
+    const lowerQuery = (query || '').toLowerCase().trim();
 
-    let scored = this.store.map(chunk => {
-      let score = 0.55;
-      chunk.similarity_keywords.forEach(kw => {
-        if (lowerQuery.includes(kw)) score += 0.12;
-      });
+    let candidates = this.store;
 
-      if (scope && scope !== 'all' && chunk.library === scope) {
-        score += 0.2;
+    let scored = candidates.map(chunk => {
+      let score = 0.50;
+
+      // Check keyword overlap
+      if (chunk.similarity_keywords) {
+        chunk.similarity_keywords.forEach(kw => {
+          if (lowerQuery.includes(kw.toLowerCase())) {
+            score += 0.15;
+          }
+        });
+      }
+
+      // Exact library name match in query
+      if (lowerQuery.includes(chunk.library) || lowerQuery.includes(chunk.library_name.toLowerCase())) {
+        score += 0.25;
+      }
+
+      // Scope match boost
+      if (scope && scope !== 'all') {
+        if (chunk.library === scope) {
+          score += 0.50; // Strong boost for explicitly selected Target Doc
+        } else {
+          score -= 0.30; // Deprioritize other docs when user selected a specific doc
+        }
       }
 
       return {
         ...chunk,
-        cosine_score: Math.min(0.994, Math.max(0.72, score))
+        cosine_score: Math.min(0.996, Math.max(0.65, score))
       };
     });
 
+    // Sort descending by calculated cosine score
     scored.sort((a, b) => b.cosine_score - a.cosine_score);
+
     return scored.slice(0, topK);
   }
 }

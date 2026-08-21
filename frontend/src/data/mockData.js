@@ -163,5 +163,29 @@ print(result.enable_self_healing) # True`,
         markdown: "### Tool Calling in LangChain v0.3\nUse `.bind_tools()` to attach tool schemas directly to any chat model supporting function calling. For structured data extraction, use `.with_structured_output()`."
       }
     ]
+  },
+  "supabase": {
+    matchQuery: "supabase",
+    headline: "Supabase pgvector: High-Speed HNSW Indexing & Semantic Similarity",
+    answer: "In Supabase with pgvector, you can store high-dimensional embeddings and query them using the **HNSW (Hierarchical Navigable Small World)** index for sub-millisecond similarity lookups.",
+    codeLang: "sql",
+    code: `-- Enable the pgvector extension and create HNSW index
+create extension if not exists vector;
+
+create table if not exists documentation_chunks (
+  id bigint primary key generated always as identity,
+  content text not null,
+  embedding vector(1536)
+);
+
+create index on documentation_chunks using hnsw (embedding vector_cosine_ops);`,
+    citations: [
+      {
+        title: "Supabase Vector Documentation • /docs/guides/ai/vector-indexes",
+        score: "99.0% Match",
+        url: "https://supabase.com/docs/guides/ai/vector-indexes",
+        markdown: "### Supabase pgvector HNSW Indexing\nHNSW builds a multi-layer graph for fast nearest-neighbor lookups with vector_cosine_ops."
+      }
+    ]
   }
 };

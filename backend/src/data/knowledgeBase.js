@@ -11,7 +11,7 @@ const VECTOR_STORE = [
     title: "Next.js 15 Async Request Headers & Cookies Migration",
     source_url: "https://nextjs.org/docs/app/building-your-application/upgrading/version-15",
     version: "v15.0.1",
-    similarity_keywords: ["next", "cookie", "cookies", "header", "headers", "async", "params", "upgrade", "version 15", "breaking"],
+    similarity_keywords: ["next", "nextjs", "next.js", "cookie", "cookies", "header", "headers", "async", "params", "upgrade", "version 15", "breaking", "app router", "server component"],
     headline: "Next.js 15 Breaking Changes: Async Request Headers & Cookies",
     answer: "In Next.js 15, runtime APIs that inspect incoming request data—including `cookies()`, `headers()`, `params`, and `searchParams`—have been changed from synchronous properties to **asynchronous Promises**. You must now `await` them before reading values.",
     code_lang: "typescript",
@@ -41,7 +41,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     title: "Bright Data Scraper Studio DCA Trigger API (Node.js)",
     source_url: "https://docs.brightdata.com/api-reference/scraper-studio-api/Getting_started_with_the_API",
     version: "v2.4.0",
-    similarity_keywords: ["bright", "brightdata", "collector", "dca", "trigger", "scraper", "self-healing", "node", "axios", "api"],
+    similarity_keywords: ["bright", "brightdata", "collector", "dca", "trigger", "scraper", "self-healing", "node", "axios", "api", "unblocking", "proxy"],
     headline: "Bright Data Scraper Studio DCA Trigger API (Node.js)",
     answer: `To trigger your custom Scraper Studio collector (\`${config.brightData.collectorId}\`) programmatically, send an authenticated \`POST\` request to the DCA trigger endpoint. With self-healing enabled, Bright Data will automatically re-derive broken CSS selectors from your natural language schema if the target page DOM shifts.`,
     code_lang: "javascript",
@@ -79,7 +79,7 @@ triggerDocCollector();`,
     title: "LangChain v0.3 Standardized Tool Calling with Pydantic",
     source_url: "https://python.langchain.com/docs/how_to/tool_calling",
     version: "v0.3.4",
-    similarity_keywords: ["langchain", "tool", "pydantic", "structured", "bind_tools", "agent", "python"],
+    similarity_keywords: ["langchain", "tool", "pydantic", "structured", "bind_tools", "agent", "python", "langgraph", "llm"],
     headline: "LangChain v0.3 Standardized Tool Calling with Pydantic",
     answer: "In LangChain v0.3, tool calling and structured output are standardized using `.bind_tools()` and `.with_structured_output()`. Models directly bind Python functions or Pydantic models with type safety.",
     code_lang: "python",
@@ -98,6 +98,58 @@ result = structured_llm.invoke("Scrape https://nextjs.org/docs with self healing
 print(result.target_url) # "https://nextjs.org/docs"
 print(result.enable_self_healing) # True`,
     markdown: "### Tool Calling in LangChain v0.3\nUse `.bind_tools()` to attach tool schemas directly to any chat model supporting function calling. For structured data extraction, use `.with_structured_output()`."
+  },
+  {
+    id: "chunk_sb_01",
+    library: "supabase",
+    library_name: "Supabase & pgvector",
+    title: "Supabase pgvector HNSW Indexing & Semantic Search",
+    source_url: "https://supabase.com/docs/guides/ai/vector-indexes",
+    version: "v2.39.0",
+    similarity_keywords: ["supabase", "pgvector", "hnsw", "vector", "postgres", "embedding", "embeddings", "sql", "similarity", "cosine", "match_documents", "rls", "database"],
+    headline: "Supabase pgvector: High-Speed HNSW Indexing & Semantic Similarity",
+    answer: "In Supabase with pgvector, you can store high-dimensional embeddings and query them using the **HNSW (Hierarchical Navigable Small World)** index. HNSW provides sub-millisecond approximate nearest neighbor search with superior query performance compared to IVFFlat.",
+    code_lang: "sql",
+    code: `-- 1. Enable the pgvector extension
+create extension if not exists vector;
+
+-- 2. Create documentation vector table
+create table if not exists documentation_chunks (
+  id bigint primary key generated always as identity,
+  content text not null,
+  metadata jsonb,
+  embedding vector(1536)
+);
+
+-- 3. Create HNSW index for ultra-fast cosine similarity search
+create index on documentation_chunks using hnsw (embedding vector_cosine_ops);
+
+-- 4. Match documents stored procedure
+create or replace function match_docs(
+  query_embedding vector(1536),
+  match_threshold float,
+  match_count int
+)
+returns table (
+  id bigint,
+  content text,
+  similarity float
+)
+language plpgsql
+as $$
+begin
+  return query
+  select
+    documentation_chunks.id,
+    documentation_chunks.content,
+    1 - (documentation_chunks.embedding <=> query_embedding) as similarity
+  from documentation_chunks
+  where 1 - (documentation_chunks.embedding <=> query_embedding) > match_threshold
+  order by documentation_chunks.embedding <=> query_embedding
+  limit match_count;
+end;
+$$;`,
+    markdown: "### Supabase pgvector HNSW Indexing\nHNSW builds a multi-layer graph for fast nearest-neighbor lookups. Use `vector_cosine_ops` to query cosine distance with `<=>` operator."
   }
 ];
 
