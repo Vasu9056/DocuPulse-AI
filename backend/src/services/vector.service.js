@@ -20,13 +20,20 @@ class VectorService {
       let score = 0.50;
 
       // Check keyword overlap
+      const queryWords = lowerQuery.split(' ');
       if (chunk.similarity_keywords) {
         chunk.similarity_keywords.forEach(kw => {
-          if (lowerQuery.includes(kw.toLowerCase())) {
+          if (lowerQuery.includes(kw.toLowerCase()) || queryWords.includes(kw.toLowerCase())) {
             score += 0.15;
           }
         });
       }
+
+      queryWords.forEach(word => {
+        if (word.length > 2 && chunk.title.toLowerCase().includes(word)) {
+          score += 0.10;
+        }
+      });
 
       // Exact library name match in query
       if (lowerQuery.includes(chunk.library) || lowerQuery.includes(chunk.library_name.toLowerCase())) {
@@ -44,7 +51,7 @@ class VectorService {
 
       return {
         ...chunk,
-        cosine_score: Math.min(0.996, Math.max(0.65, score))
+        cosine_score: Math.min(0.996, Math.max(0.12, score))
       };
     });
 
