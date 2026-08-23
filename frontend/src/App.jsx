@@ -3,7 +3,7 @@ import { api } from './services/api';
 
 export default function App() {
   const [isAppActive, setIsAppActive] = useState(() => localStorage.getItem("isAppActive") === "true");
-  const [activeView, setActiveView] = useState(() => localStorage.getItem("activeView") || "copilot");
+  const [activeView, setActiveView] = useState(() => { const v = localStorage.getItem("activeView"); return (v && v !== "settings") ? v : "copilot"; });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeCitation, setActiveCitation] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -369,10 +369,7 @@ export default function App() {
 
           <div className="nav-group" >
             <div className="nav-label">Account</div>
-            <div className={`nav-item ${activeView === "settings" ? "active" : ""}`} data-view="settings" onClick={() => showView('settings')}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
-              <span className="flex1">Settings</span>
-            </div>
+            
           </div>
 
           <div className="collector-chip">
@@ -830,26 +827,9 @@ client.trigger(
               </div>
             </div>
 
-            {/* ===== SETTINGS ===== */}
-            <div className={`view ${activeView === "settings" ? "active" : ""}`} data-view="settings">
-              <div className="view-head">
-                <div><div className="eyebrow">Configuration</div><h1 className="view-title">Settings &amp; integration parameters</h1><p className="view-desc">Bright Data credentials, vector sync behaviour, and chunking controls.</p></div>
-              </div>
-              <div className="settings-grid">
-                <div className="card" >
-                  <h3 className="inspector-title" >Bright Data connection</h3>
-                  <div className="field"><label>Active collector ID</label><div className="field-row"><input value="c_mt5rg7zk1jnidr2lrg" readOnly /><button className="btn btn-ghost btn-sm" onClick={() => { showToast('Copied to clipboard'); }}>Copy</button></div></div>
-                  <div className="field"><label>API key</label><div className="field-row"><input type="password" value="sk-live-9f81cae2210" readOnly /><button className="btn btn-ghost btn-sm" onClick={() => { showToast('Copied to clipboard'); }}>Copy</button></div></div>
-                  <div className="field"><label>Active account</label><div className="account-row"><span className="live-dot"></span>vasukumar@omnipulse.ai &nbsp;·&nbsp; <b>$52.00 balance</b></div></div>
-                </div>
-                
-              </div>
-            </div>
-
-          </div>
+                      </div>
         </div>
 
-        
         {/* Track New Source Modal */}
         <div className={`modal-scrim ${isTrackModalOpen ? "open" : ""}`} id="trackModalScrim" onClick={(e) => { if(e.target.id === 'trackModalScrim') setIsTrackModalOpen(false); }}>
           <div className="cmdk" style={{padding: '24px', maxWidth: '520px'}}>
