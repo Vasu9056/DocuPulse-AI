@@ -19,7 +19,7 @@ exports.handleVectorSearch = async (req, res, next) => {
       title: chunk.title,
       url: chunk.source_url,
       cosine_score: chunk.cosine_score.toFixed(3),
-      preview: chunk.markdown.substring(0, 140) + '...'
+      preview: chunk.answer.substring(0, 140) + '...'
     }));
 
     res.json({ status: 'success', results });
