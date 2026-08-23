@@ -369,7 +369,7 @@ export default function App() {
           <div className="collector-chip">
             <div>
               <div className="cc-label">Doc collector</div>
-              <div className="cc-id">c_msxjxlwm78wlkksy4</div>
+              <div className="cc-id">c_mt5rg7zk1jnidr2lrg</div>
             </div>
             <button className="icon-btn" onClick={() => { showToast('Copied to clipboard'); }} aria-label="Copy collector ID">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
@@ -617,7 +617,7 @@ export default function App() {
                     } catch(e) {
                       const fallbackRes = {
                         status: "triggered_live",
-                        collector_id: "c_msxjxlwm78wlkksy4",
+                        collector_id: "c_mt5rg7zk1jnidr2lrg",
                         job_id: "j_knsux4wf",
                         target_url: "https://nextjs.org/docs",
                         data: {
@@ -643,7 +643,7 @@ export default function App() {
                       <span className="badge badge-heal">{lastSyncData.status || 'triggered_live'}</span>
                     </div>
                     <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '14px', fontSize: '12px', fontFamily: 'var(--font-mono)'}}>
-                      <div><span style={{color: 'var(--ink-faint)', display: 'block', fontSize: '10px', textTransform: 'uppercase', marginBottom: '2px'}}>Collector ID</span><b>{lastSyncData.collector_id || 'c_msxjxlwm78wlkksy4'}</b></div>
+                      <div><span style={{color: 'var(--ink-faint)', display: 'block', fontSize: '10px', textTransform: 'uppercase', marginBottom: '2px'}}>Collector ID</span><b>{lastSyncData.collector_id || 'c_mt5rg7zk1jnidr2lrg'}</b></div>
                       <div><span style={{color: 'var(--ink-faint)', display: 'block', fontSize: '10px', textTransform: 'uppercase', marginBottom: '2px'}}>Job ID</span><b>{lastSyncData.job_id || 'j_knsux4wf'}</b></div>
                       <div><span style={{color: 'var(--ink-faint)', display: 'block', fontSize: '10px', textTransform: 'uppercase', marginBottom: '2px'}}>Collection ID</span><b>{lastSyncData.data?.collection_id || 'j_mt5n5lmt2ngtoxysy2'}</b></div>
                       <div><span style={{color: 'var(--ink-faint)', display: 'block', fontSize: '10px', textTransform: 'uppercase', marginBottom: '2px'}}>Target URL</span><b style={{wordBreak: 'break-all'}}>{lastSyncData.target_url || 'https://nextjs.org/docs'}</b></div>
@@ -744,7 +744,7 @@ export default function App() {
                 <div className="panel card">
                   <div className="panel-head"><h3 className="panel-title">Live scraper &amp; indexing log</h3><button className="copy-btn" onClick={() => showToast('Log cleared')}>Clear</button></div>
                   <div className="terminal" id="logTerminal">
-                    <div><span className="t-time">03:10:02</span>Initialized collector session c_msxjxlwm78wlkksy4</div>
+                    <div><span className="t-time">03:10:02</span>Initialized collector session c_mt5rg7zk1jnidr2lrg</div>
                     <div><span className="t-time">03:10:03</span>Assigned residential proxy · US/EU pool</div>
                     <div><span className="t-time">03:10:05</span><span className="t-ok">200 OK</span> — crawled 4,200 documentation nodes</div>
                     <div><span className="t-time">03:10:07</span>Parsed 18,420 chunks with text-embedding-3-small</div>
@@ -752,7 +752,7 @@ export default function App() {
                 </div>
                 <div className="panel card">
                   <div className="panel-head"><h3 className="panel-title">Structured vector payload</h3><button className="copy-btn" onClick={() => { showToast('Copied to clipboard'); }}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy</button></div>
-                  <div className="payload">{"{"}<br />  <span className="k">"collector_id"</span>: <span className="s">"c_msxjxlwm78wlkksy4"</span>,<br />  <span className="k">"doc_domain"</span>: <span className="s">"docs.brightdata.com"</span>,<br />  <span className="k">"status"</span>: <span className="s">"indexed"</span>,<br />  <span className="k">"total_chunks"</span>: 18420<br />{"}"}</div>
+                  <div className="payload">{"{"}<br />  <span className="k">"collector_id"</span>: <span className="s">"c_mt5rg7zk1jnidr2lrg"</span>,<br />  <span className="k">"doc_domain"</span>: <span className="s">"docs.brightdata.com"</span>,<br />  <span className="k">"status"</span>: <span className="s">"indexed"</span>,<br />  <span className="k">"total_chunks"</span>: 18420<br />{"}"}</div>
                 </div>
               </div>
             </div>
@@ -799,14 +799,14 @@ export default function App() {
                 <div className={`api-tab ${apiTab === 'python' ? 'active' : ''}`} onClick={() => setApiTab('python')}>Python (LlamaIndex)</div>
               </div>
               <div className="api-code">
-                <div  className={`api-code-inner ${apiTab === "curl" ? "active" : ""}`}><pre>curl -X POST "https://api.brightdata.com/dca/trigger?collector=c_msxjxlwm78wlkksy4" \
+                <div  className={`api-code-inner ${apiTab === "curl" ? "active" : ""}`}><pre>curl -X POST "https://api.brightdata.com/dca/trigger?collector=c_mt5rg7zk1jnidr2lrg" \
   -H "Authorization: Bearer YOUR_BRIGHT_DATA_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '[{"{"}"url":"https://docs.brightdata.com/overview","auto_heal":true{"}"}]'</pre></div>
                 <div  className={`api-code-inner ${apiTab === "node" ? "active" : ""}`}><pre>import {"{"} BrightDataClient {"}"} from "brightdata-sdk";
 
 const client = new BrightDataClient({"{"} apiKey: process.env.BD_KEY {"}"});
-await client.trigger("c_msxjxlwm78wlkksy4", {"{"}
+await client.trigger("c_mt5rg7zk1jnidr2lrg", {"{"}
   url: "https://docs.brightdata.com/overview",
   autoHeal: true,
 {"}"});</pre></div>
@@ -814,7 +814,7 @@ await client.trigger("c_msxjxlwm78wlkksy4", {"{"}
 
 client = Client(api_key=os.environ["BD_KEY"])
 client.trigger(
-    collector="c_msxjxlwm78wlkksy4",
+    collector="c_mt5rg7zk1jnidr2lrg",
     url="https://docs.brightdata.com/overview",
     auto_heal=True,
 )</pre></div>
@@ -829,16 +829,16 @@ client.trigger(
               <div className="settings-grid">
                 <div className="card" >
                   <h3 className="inspector-title" >Bright Data connection</h3>
-                  <div className="field"><label>Active collector ID</label><div className="field-row"><input value="c_msxjxlwm78wlkksy4" readonly /><button className="btn btn-ghost btn-sm" onClick={() => { showToast('Copied to clipboard'); }}>Copy</button></div></div>
-                  <div className="field"><label>API key</label><div className="field-row"><input type="password" value="sk-live-9f81cae2210" readonly /><button className="btn btn-ghost btn-sm" onClick={() => { showToast('Copied to clipboard'); }}>Copy</button></div></div>
+                  <div className="field"><label>Active collector ID</label><div className="field-row"><input value="c_mt5rg7zk1jnidr2lrg" readOnly /><button className="btn btn-ghost btn-sm" onClick={() => { showToast('Copied to clipboard'); }}>Copy</button></div></div>
+                  <div className="field"><label>API key</label><div className="field-row"><input type="password" value="sk-live-9f81cae2210" readOnly /><button className="btn btn-ghost btn-sm" onClick={() => { showToast('Copied to clipboard'); }}>Copy</button></div></div>
                   <div className="field"><label>Active account</label><div className="account-row"><span className="live-dot"></span>vasukumar@omnipulse.ai &nbsp;·&nbsp; <b>$52.00 balance</b></div></div>
                 </div>
                 <div className="card" >
                   <h3 className="inspector-title" >Vector embedding &amp; chunking</h3>
                   <div className="field"><label>Vector store provider</label><select><option>ChromaDB (local, persistent)</option><option>Pinecone</option><option>Supabase pgvector</option></select></div>
-                  <div className="field"><label>Embedding model</label><input value="text-embedding-3-small · 1536 dimensions" readonly /></div>
-                  <div className="field"><label>Chunk token size — <span className="slider-val">512</span></label><input type="range" min="128" max="1024" value="512" /></div>
-                  <div className="field" ><label>Cosine match threshold — <span className="slider-val">0.82</span></label><input type="range" min="0" max="100" value="82" /></div>
+                  <div className="field"><label>Embedding model</label><input value="text-embedding-3-small · 1536 dimensions" readOnly /></div>
+                  <div className="field"><label>Chunk token size — <span className="slider-val">512</span></label><input type="range" min="128" max="1024" defaultValue="512" /></div>
+                  <div className="field" ><label>Cosine match threshold — <span className="slider-val">0.82</span></label><input type="range" min="0" max="100" defaultValue="82" /></div>
                 </div>
               </div>
             </div>
@@ -914,7 +914,7 @@ client.trigger(
           <div className="cmdk">
             <div className="cmdk-input">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" strokeLinecap="round"/></svg>
-              <input type="text" placeholder="Search docs, jump to a view, or ask a question…" autofocus />
+              <input type="text" placeholder="Search docs, jump to a view, or ask a question…" autoFocus />
             </div>
             <div className="cmdk-list">
               <div className="cmdk-sec">Jump to</div>
