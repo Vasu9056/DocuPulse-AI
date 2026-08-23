@@ -16,9 +16,7 @@ class RagService {
       title: `${chunk.library_name} • ${chunk.title}`,
       score: `${(chunk.cosine_score * 100).toFixed(1)}% Match`,
       url: chunk.source_url,
-      markdown: chunk.answer + "
-
-",
+      markdown: chunk.answer + "\n\n```" + chunk.code_lang + "\n" + chunk.code + "\n```",
       chunk_id: chunk.id
     }));
 
