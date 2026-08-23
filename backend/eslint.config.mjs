@@ -3,7 +3,7 @@ import pluginJs from '@eslint/js';
 
 export default [
   {
-    ignores: ['node_modules/**', 'coverage/**', 'eslint.config.js'],
+    ignores: ['node_modules/**', 'coverage/**', 'eslint.config.mjs'],
   },
   pluginJs.configs.recommended,
   {
