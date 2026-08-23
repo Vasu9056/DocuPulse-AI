@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocuPulse AI — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root{
+  --paper: #EEF1EA;
+  --paper-raised: #FBFBF8;
+  --paper-sunken: #E4E8DF;
+  --ink: #151B18;
+  --ink-soft: #4B5750;
+  --ink-faint: #8B958E;
+  --line: rgba(21,27,24,0.12);
+  --line-strong: rgba(21,27,24,0.22);
+  --thread: #B4772C;
+  --thread-ink: #7A501C;
+  --thread-soft: #EBD3AC;
+  --thread-wash: rgba(180,119,44,0.10);
+  --heal: #2E7A54;
+  --heal-soft: #D9EBDF;
+  --heal-wash: rgba(46,122,84,0.10);
+  --tear: #B0512E;
+  --tear-soft: #F1DCCF;
+  --tear-wash: rgba(176,81,46,0.10);
+  --shadow: 0 1px 2px rgba(21,27,24,0.04), 0 8px 24px -12px rgba(21,27,24,0.18);
+  --shadow-lg: 0 24px 60px -20px rgba(21,27,24,0.35);
+  --radius-s: 8px;
+  --radius-m: 14px;
+  --radius-l: 22px;
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+html[data-theme="dark"]{
+  --paper: #10140F;
+  --paper-raised: #171D16;
+  --paper-sunken: #0B0E0A;
+  --ink: #ECE8DA;
+  --ink-soft: #A9B2A3;
+  --ink-faint: #6D766A;
+  --line: rgba(236,232,218,0.10);
+  --line-strong: rgba(236,232,218,0.18);
+  --thread: #D69A4C;
+  --thread-ink: #F0C989;
+  --thread-soft: rgba(214,154,76,0.20);
+  --thread-wash: rgba(214,154,76,0.10);
+  --heal: #4FA378;
+  --heal-soft: rgba(79,163,120,0.18);
+  --heal-wash: rgba(79,163,120,0.10);
+  --tear: #DD7C52;
+  --tear-soft: rgba(221,124,82,0.18);
+  --tear-wash: rgba(221,124,82,0.10);
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 30px -14px rgba(0,0,0,0.6);
+  --shadow-lg: 0 30px 70px -20px rgba(0,0,0,0.7);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--font-body);
+  background:var(--paper-sunken);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+img,svg{display:block;}
+button{font-family:inherit;}
+::selection{background:var(--thread-soft);}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+
+/* focus */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible{
+  outline:2px solid var(--thread);
+  outline-offset:2px;
+  border-radius:4px;
+}
+
+/* ============================================================
+   PROTOTYPE CHROME (not part of the product — the harness around it)
+   ============================================================ */
+.harness{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px 20px 60px;
+}
+.harness-bar{
+  width:100%;
+  max-width:1400px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:10px 18px;
+  margin-bottom:16px;
+  background:var(--paper-raised);
+  border:1px solid var(--line);
+  border-radius:100px;
+  font-size:12.5px;
+  color:var(--ink-soft);
+  flex-wrap:wrap;
+}
+.harness-bar .label{
+  display:flex; align-items:center; gap:8px;
+  font-family:var(--font-mono);
+  letter-spacing:0.02em;
+  text-transform:uppercase;
+  font-size:10.5px;
+  color:var(--ink-faint);
+}
+.harness-bar .dot{width:6px;height:6px;border-radius:50%;background:var(--thread);}
+.device-toggle{
+  display:flex; gap:4px;
+  background:var(--paper-sunken);
+  border:1px solid var(--line);
+  border-radius:100px;
+  padding:3px;
+}
+.device-toggle button{
+  border:none; background:transparent; color:var(--ink-soft);
+  font-size:12.5px; font-weight:600; padding:7px 14px; border-radius:100px;
+  cursor:pointer; transition:background .15s ease, color .15s ease;
+  font-family:var(--font-body);
+}
+.device-toggle button.active{ background:var(--ink); color:var(--paper); }
+.harness-actions{display:flex; align-items:center; gap:10px;}
+.harness-actions button{
+  border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink);
+  border-radius:100px; padding:7px 14px; font-size:12.5px; font-weight:600; cursor:pointer;
+  display:flex; align-items:center; gap:6px;
+}
+
+.stage-frame{
+  width:100%;
+  max-width:1400px;
+  container-type: inline-size;
+  container-name: shell;
+  transition: max-width .45s cubic-bezier(.65,0,.35,1);
+}
+.stage-frame.mode-landscape{ max-width:1194px; }
+.stage-frame.mode-portrait{ max-width:834px; }
+
+.device-bezel{
+  border-radius:0px;
+  overflow:hidden;
+  box-shadow:var(--shadow-lg);
+  border:1px solid var(--line);
+  transition:border-radius .3s ease;
+}
+.stage-frame.mode-landscape .device-bezel,
+.stage-frame.mode-portrait .device-bezel{
+  border-radius:34px;
+  border:8px solid var(--ink);
+}
+html[data-theme="dark"] .stage-frame.mode-landscape .device-bezel,
+html[data-theme="dark"] .stage-frame.mode-portrait .device-bezel{
+  border-color:#000;
+}
+.home-indicator{ display:none; }
+.stage-frame.mode-landscape .home-indicator,
+.stage-frame.mode-portrait .home-indicator{
+  display:flex; justify-content:center; padding:10px 0 14px; background:var(--paper);
+}
+.home-indicator span{ width:120px; height:5px; border-radius:100px; background:var(--ink-faint); opacity:.5;}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+.app{
+  background:var(--paper);
+  color:var(--ink);
+  display:flex;
+  min-height:760px;
+  position:relative;
+  overflow:hidden;
+}
+
+/* ---- Sidebar ---- */
+.sidebar{
+  width:264px;
+  flex-shrink:0;
+  border-right:1px solid var(--line);
+  background:var(--paper-raised);
+  display:flex;
+  flex-direction:column;
+  padding:22px 16px;
+  transition:transform .3s ease;
+}
+.brand{
+  display:flex; align-items:center; gap:11px;
+  padding:4px 6px 22px;
+  border-bottom:1px solid var(--line);
+  margin-bottom:18px;
+}
+.brand-mark{
+  width:34px; height:34px; flex-shrink:0; border-radius:10px;
+  background:var(--ink); display:flex; align-items:center; justify-content:center;
+}
+.brand-mark svg{ width:19px; height:19px; }
+.brand-name{ font-family:var(--font-display); font-weight:600; font-size:16.5px; line-height:1.15; }
+.brand-tag{ font-size:11px; color:var(--ink-faint); margin-top:1px; }
+
+.nav-group{ margin-bottom:20px; }
+.nav-label{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:0.09em; text-transform:uppercase;
+  color:var(--ink-faint); padding:0 10px 8px;
+}
+.nav-item{
+  display:flex; align-items:center; gap:11px;
+  padding:9px 10px; border-radius:10px; cursor:pointer;
+  color:var(--ink-soft); font-size:13.5px; font-weight:500;
+  margin-bottom:2px; position:relative;
+  transition:background .15s ease, color .15s ease;
+  border:1px solid transparent;
+}
+.nav-item svg{ width:17px; height:17px; flex-shrink:0; opacity:.8; }
+.nav-item:hover{ background:var(--paper-sunken); color:var(--ink); }
+.nav-item.active{
+  background:var(--ink); color:var(--paper);
+  box-shadow:var(--shadow);
+}
+.nav-item.active svg{ opacity:1; }
+.nav-item .flex1{ flex:1; }
+.nav-badge{
+  font-family:var(--font-mono); font-size:10px; padding:2px 7px; border-radius:100px;
+  background:var(--thread-soft); color:var(--thread-ink); font-weight:600;
+}
+.nav-item.active .nav-badge{ background:rgba(255,255,255,0.16); color:var(--paper); }
+.nav-badge.pulse{ display:flex; align-items:center; gap:5px; background:transparent; padding-left:0;}
+.nav-badge.pulse .live-dot{ width:6px;height:6px;border-radius:50%; background:var(--heal); box-shadow:0 0 0 3px var(--heal-wash);}
+.nav-badge.pulse span{color:var(--heal); font-weight:700;}
+.nav-item.active .nav-badge.pulse span{ color:#BFE8D2; }
+
+.sidebar-spacer{ flex:1; }
+.collector-chip{
+  border:1px dashed var(--line-strong); border-radius:12px; padding:10px 12px;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.collector-chip .cc-label{ font-size:9.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-faint); font-family:var(--font-mono); margin-bottom:3px;}
+.collector-chip .cc-id{ font-family:var(--font-mono); font-size:12px; color:var(--ink); }
+.icon-btn{
+  border:none; background:transparent; color:var(--ink-faint); cursor:pointer;
+  width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center;
+  transition:background .15s ease, color .15s ease;
+}
+.icon-btn:hover{ background:var(--paper-sunken); color:var(--ink); }
+.icon-btn svg{ width:14px; height:14px; }
+
+/* mobile sidebar overlay */
+.sidebar-scrim{ display:none; }
+
+/* ---- Main column ---- */
+.main-col{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+}
+
+/* topbar */
+.topbar{
+  display:flex; align-items:center; gap:14px;
+  padding:16px 26px;
+  border-bottom:1px solid var(--line);
+  background:var(--paper);
+  flex-shrink:0;
+}
+.menu-btn{ display:none; }
+.search-trigger{
+  flex:1; max-width:460px;
+  display:flex; align-items:center; gap:9px;
+  border:1px solid var(--line-strong); background:var(--paper-raised);
+  border-radius:11px; padding:9px 12px; cursor:pointer; color:var(--ink-faint);
+  font-size:13px;
+}
+.search-trigger svg{ width:15px; height:15px; flex-shrink:0; }
+.search-trigger .kbd{
+  margin-left:auto; font-family:var(--font-mono); font-size:10.5px; border:1px solid var(--line-strong);
+  border-radius:5px; padding:2px 6px; color:var(--ink-faint); background:var(--paper);
+}
+.topbar-spacer{ flex:1; }
+.topbar-right{ display:flex; align-items:center; gap:10px; }
+.vitals-pill{
+  display:flex; align-items:center; gap:7px;
+  border:1px solid var(--heal-soft); background:var(--heal-wash);
+  color:var(--heal); font-size:12px; font-weight:600;
+  padding:6px 12px; border-radius:100px; white-space:nowrap;
+}
+.vitals-pill .live-dot{ width:6px;height:6px;border-radius:50%; background:var(--heal); }
+.pulse-dot{ animation:pulseDot 2.2s ease-in-out infinite; }
+@keyframes pulseDot{ 0%,100%{ box-shadow:0 0 0 0 var(--heal-wash);} 50%{ box-shadow:0 0 0 5px transparent;} }
+.credit-pill{
+  font-family:var(--font-mono); font-size:12px; font-weight:600; color:var(--thread-ink);
+  background:var(--thread-wash); border:1px solid var(--thread-soft); padding:6px 12px; border-radius:100px;
+  white-space:nowrap;
+}
+.avatar{
+  width:32px; height:32px; border-radius:50%; background:var(--ink); color:var(--paper);
+  display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;
+  font-family:var(--font-display); flex-shrink:0;
+}
+
+/* view container */
+.view-scroll{
+  flex:1; overflow-y:auto;
+  padding:30px 34px 60px;
+}
+.view{ display:none; animation:viewIn .35s ease; }
+.view.active{ display:block; }
+@keyframes viewIn{ from{ opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+.view-head{ margin-bottom:22px; display:flex; align-items:flex-end; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+.eyebrow{
+  font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.09em;
+  color:var(--thread-ink); margin-bottom:8px; display:flex; align-items:center; gap:7px;
+}
+.eyebrow::before{ content:''; width:14px; height:1px; background:var(--thread); }
+.view-title{ font-family:var(--font-display); font-size:28px; font-weight:600; letter-spacing:-0.01em; margin:0 0 6px; }
+.view-desc{ color:var(--ink-soft); font-size:14px; max-width:560px; line-height:1.5; margin:0; }
+
+/* buttons */
+.btn{
+  display:inline-flex; align-items:center; gap:7px; justify-content:center;
+  border-radius:11px; padding:10px 17px; font-size:13.5px; font-weight:600; cursor:pointer;
+  border:1px solid transparent; transition:transform .12s ease, background .15s ease, box-shadow .15s ease;
+  white-space:nowrap;
+}
+.btn svg{ width:14px; height:14px; }
+.btn:active{ transform:scale(0.97); }
+.btn-primary{ background:var(--ink); color:var(--paper); box-shadow:var(--shadow); }
+.btn-primary:hover{ background:var(--thread-ink); }
+.btn-thread{ background:var(--thread); color:#241304; }
+.btn-thread:hover{ filter:brightness(1.05); }
+.btn-ghost{ background:transparent; border-color:var(--line-strong); color:var(--ink); }
+.btn-ghost:hover{ background:var(--paper-raised); }
+.btn-sm{ padding:7px 12px; font-size:12.5px; border-radius:9px; }
+
+/* pills / badges */
+.badge{
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:11px; font-weight:700; padding:4px 9px; border-radius:100px;
+  font-family:var(--font-mono); letter-spacing:.01em;
+}
+.badge-heal{ background:var(--heal-soft); color:var(--heal); }
+.badge-tear{ background:var(--tear-soft); color:var(--tear); }
+.badge-thread{ background:var(--thread-soft); color:var(--thread-ink); }
+.badge-neutral{ background:var(--paper-sunken); color:var(--ink-soft); border:1px solid var(--line); }
+.badge .dot{ width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+/* card */
+.card{
+  background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-m);
+  box-shadow:var(--shadow);
+}
+
+/* ============================================================
+   COPILOT VIEW
+   ============================================================ */
+.chip-row{ display:flex; gap:9px; overflow-x:auto; padding-bottom:4px; margin-bottom:22px; }
+.query-chip{
+  flex-shrink:0; display:flex; align-items:center; gap:7px;
+  border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink-soft);
+  padding:9px 14px; border-radius:100px; font-size:12.5px; font-weight:500; cursor:pointer;
+  transition:border-color .15s ease, color .15s ease;
+}
+.query-chip:hover{ border-color:var(--thread); color:var(--ink); }
+.query-chip .qi{ width:6px; height:6px; border-radius:50%; background:var(--thread); flex-shrink:0; }
+
+.chat-thread{ display:flex; flex-direction:column; gap:18px; max-width:820px; margin-bottom:18px;}
+.msg{ display:flex; gap:13px; }
+.msg-avatar{
+  width:32px; height:32px; border-radius:9px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.msg-avatar.ai{ background:var(--ink); }
+.msg-avatar.ai svg{ width:16px; height:16px; }
+.msg-avatar.user{ background:var(--thread-soft); color:var(--thread-ink); font-family:var(--font-mono); font-weight:700; font-size:11px; }
+.msg-body{ flex:1; min-width:0; }
+.msg-card{ background:var(--paper-raised); border:1px solid var(--line); border-radius:var(--radius-m); padding:18px 20px; box-shadow:var(--shadow); }
+.msg-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;}
+.msg-head b{ font-size:13.5px; }
+.msg-title{ font-family:var(--font-display); font-size:17px; font-weight:600; margin:0 0 8px;}
+.msg-text{ font-size:13.8px; line-height:1.65; color:var(--ink-soft); margin:0 0 4px; }
+.msg-text.user-text{ color:var(--ink); }
+.msg.user .msg-card{ background:var(--thread-wash); border-color:var(--thread-soft); }
+
+.code-panel{
+  margin:12px 0; background:var(--paper-sunken); border:1px solid var(--line); border-radius:12px;
+  overflow:hidden;
+}
+html[data-theme="dark"] .code-panel{ background:var(--paper-sunken); }
+.code-panel-head{
+  display:flex; align-items:center; justify-content:space-between; padding:8px 13px;
+  border-bottom:1px solid var(--line); font-family:var(--font-mono); font-size:10.5px;
+  color:var(--ink-faint); text-transform:uppercase; letter-spacing:.06em;
+}
+.code-panel pre{ margin:0; padding:14px 16px; overflow-x:auto; }
+.code-panel code{ font-family:var(--font-mono); font-size:12.6px; line-height:1.7; color:var(--ink); }
+.tok-kw{ color:var(--thread-ink); } .tok-str{ color:var(--heal); } .tok-com{ color:var(--ink-faint); font-style:italic;}
+
+.copy-btn{
+  display:flex; align-items:center; gap:5px; background:transparent; border:none; color:var(--ink-faint);
+  font-family:var(--font-mono); font-size:10.5px; cursor:pointer; padding:2px 4px;
+}
+.copy-btn:hover{ color:var(--ink); }
+.copy-btn svg{ width:12px; height:12px; }
+
+.citation-row{ display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+.citation-pill{
+  display:flex; align-items:center; gap:6px;
+  border:1px solid var(--line-strong); background:var(--paper); color:var(--ink-soft);
+  padding:6px 11px; border-radius:100px; font-size:11.5px; cursor:pointer; font-family:var(--font-mono);
+  transition:border-color .15s ease, color .15s ease, background .15s ease;
+}
+.citation-pill:hover{ border-color:var(--thread); color:var(--thread-ink); background:var(--thread-wash); }
+.citation-pill svg{ width:11px; height:11px; }
+
+.composer{
+  max-width:820px; border:1px solid var(--line-strong); background:var(--paper-raised);
+  border-radius:var(--radius-m); padding:14px 16px 12px; box-shadow:var(--shadow);
+}
+.composer textarea{
+  width:100%; border:none; background:transparent; resize:none; outline:none;
+  font-family:var(--font-body); font-size:13.8px; color:var(--ink); min-height:44px; line-height:1.5;
+}
+.composer textarea::placeholder{ color:var(--ink-faint); }
+.composer-foot{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:8px; padding-top:10px; border-top:1px solid var(--line); flex-wrap:wrap;}
+.target-select{
+  display:flex; align-items:center; gap:7px; font-size:12px; color:var(--ink-soft);
+  border:1px solid var(--line-strong); border-radius:9px; padding:6px 11px; cursor:pointer; background:var(--paper);
+}
+.target-select svg{ width:12px; height:12px; }
+.target-select b{ color:var(--ink); font-weight:600;}
+
+/* ============================================================
+   DOC LIBRARIES
+   ============================================================ */
+.grid-4{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:30px; }
+.lib-card{ padding:20px; display:flex; flex-direction:column; gap:12px; cursor:default; transition:border-color .15s ease, transform .15s ease;}
+.lib-card:hover{ border-color:var(--thread-soft); transform:translateY(-2px); }
+.lib-top{ display:flex; align-items:flex-start; justify-content:space-between; }
+.lib-icon{ width:34px; height:34px; border-radius:9px; background:var(--paper-sunken); display:flex; align-items:center; justify-content:center; }
+.lib-icon svg{ width:17px; height:17px; }
+.lib-title{ font-family:var(--font-display); font-weight:600; font-size:16px; margin:0; }
+.lib-src{ font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint); margin-top:2px;}
+.lib-desc{ font-size:12.5px; color:var(--ink-soft); line-height:1.55; flex:1; }
+.lib-stats{ display:flex; gap:22px; padding-top:10px; border-top:1px solid var(--line); }
+.lib-stat b{ display:block; font-size:16px; font-family:var(--font-display); }
+.lib-stat span{ font-size:9.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); font-family:var(--font-mono);}
+.lib-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:4px;}
+.lib-foot .synced{ font-size:11px; color:var(--ink-faint); }
+
+.inspector{ padding:22px; }
+.inspector-head{ margin-bottom:14px; }
+.inspector-title{ font-family:var(--font-display); font-size:16.5px; font-weight:600; margin:0 0 4px;}
+.inspector-sub{ font-size:12.5px; color:var(--ink-soft); margin:0;}
+.inspector-row{ display:flex; gap:10px; margin-bottom:12px;}
+.inspector-row input{
+  flex:1; border:1px solid var(--line-strong); background:var(--paper); border-radius:10px; padding:11px 14px;
+  font-family:var(--font-mono); font-size:12.5px; color:var(--ink); outline:none;
+}
+.inspector-empty{ font-size:12px; color:var(--ink-faint); font-style:italic; padding:8px 2px;}
+
+/* ============================================================
+   DIFF RADAR — signature stitch treatment
+   ============================================================ */
+.filter-row{ display:flex; gap:8px; }
+.chip-toggle{
+  border:1px solid var(--line-strong); background:var(--paper-raised); color:var(--ink-soft);
+  padding:7px 13px; border-radius:100px; font-size:12px; font-weight:600; cursor:pointer;
+}
+.chip-toggle.active{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+.diff-list{ display:flex; flex-direction:column; gap:16px; max-width:1000px; margin-top:22px; }
+.diff-card{ padding:22px 24px; }
+.diff-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:8px; flex-wrap:wrap;}
+.diff-head-left{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.diff-tag{ font-family:var(--font-mono); font-size:10.5px; border:1px solid var(--line-strong); border-radius:6px; padding:3px 7px; color:var(--ink-soft); }
+.diff-title{ font-family:var(--font-display); font-size:16.5px; font-weight:600; margin:0; }
+.diff-desc{ font-size:13px; color:var(--ink-soft); margin:6px 0 16px; line-height:1.55; max-width:640px;}
+
+.stitch-compare{ position:relative; display:grid; grid-template-columns:1fr 1fr; gap:0; }
+.stitch-pane{ padding:14px 18px; }
+.stitch-pane.before{ background:var(--tear-wash); border-radius:12px 0 0 12px; }
+.stitch-pane.after{ background:var(--heal-wash); border-radius:0 12px 12px 0; }
+.stitch-label{ font-family:var(--font-mono); font-size:9.5px; text-transform:uppercase; letter-spacing:.07em; margin-bottom:8px; display:flex; align-items:center; gap:6px;}
+.stitch-label.b{ color:var(--tear); } .stitch-label.a{ color:var(--heal); }
+.stitch-pane pre{ margin:0; font-family:var(--font-mono); font-size:12px; line-height:1.7; white-space:pre-wrap; }
+.stitch-pane.before pre{ color:var(--tear); text-decoration:line-through; text-decoration-color:rgba(176,81,46,0.4); opacity:.85;}
+.stitch-pane.after pre{ color:var(--heal); }
+.stitch-seam{
+  position:absolute; top:0; bottom:0; left:50%; width:0; transform:translateX(-50%);
+  border-left:2px dashed var(--thread); z-index:2;
+}
+.stitch-seam::before, .stitch-seam::after{
+  content:'✕'; position:absolute; left:50%; transform:translate(-50%,-50%);
+  font-size:11px; color:var(--thread); background:var(--paper-raised); width:18px; height:18px;
+  border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid var(--thread);
+}
+.stitch-seam::before{ top:14%; }
+.stitch-seam::after{ top:86%; }
+
+/* ============================================================
+   SCRAPER OPS
+   ============================================================ */
+.vitals-banner{
+  background:linear-gradient(135deg, var(--ink) 0%, #26302B 100%);
+  border-radius:var(--radius-l); padding:26px 30px; color:var(--paper); margin-bottom:22px;
+  display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;
+  position:relative; overflow:hidden;
+}
+html[data-theme="dark"] .vitals-banner{ background:linear-gradient(135deg,#171D16 0%, #0B0E0A 100%); }
+.vitals-banner-left{ max-width:600px; }
+.vitals-tags{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.vtag{ display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.16); padding:5px 11px; border-radius:100px; font-size:11px; font-weight:600; }
+.vtag .live-dot{ width:6px;height:6px;border-radius:50%; background:#7FD9A8;}
+.vitals-banner h2{ font-family:var(--font-display); font-size:23px; font-weight:600; margin:0 0 8px; }
+.vitals-banner p{ font-size:13px; color:rgba(238,238,230,0.72); line-height:1.55; margin:0; }
+.vitals-right{ display:flex; align-items:center; gap:18px; }
+.health-ring{ width:90px; height:90px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-direction:column; position:relative;}
+.health-ring svg{ position:absolute; inset:0; }
+.health-ring b{ font-family:var(--font-display); font-size:21px; }
+.health-ring span{ font-size:8.5px; text-transform:uppercase; letter-spacing:.06em; color:rgba(238,238,230,0.6); }
+
+.stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+.stat-card{ padding:18px 20px; }
+.stat-value{ font-family:var(--font-display); font-size:25px; font-weight:600; margin-bottom:3px; }
+.stat-label{ font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); font-family:var(--font-mono); }
+.stat-value.heal{ color:var(--heal); } .stat-value.thread{ color:var(--thread-ink); }
+
+.two-col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+.panel{ padding:20px 22px; }
+.panel-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.panel-title{ font-family:var(--font-display); font-weight:600; font-size:15.5px; margin:0; display:flex; align-items:center; gap:8px;}
+
+.terminal{
+  background:#12160F; border-radius:12px; padding:14px 16px; font-family:var(--font-mono); font-size:11.8px;
+  line-height:1.85; color:#B7C4B0; max-height:230px; overflow-y:auto; border:1px solid rgba(255,255,255,0.06);
+}
+.terminal .t-time{ color:#6E7A69; margin-right:8px;}
+.terminal .t-ok{ color:#7FD9A8; }
+
+.node-list{ display:flex; flex-direction:column; gap:0; }
+.node-row{ display:flex; align-items:center; justify-content:space-between; padding:11px 2px; border-bottom:1px solid var(--line); }
+.node-row:last-child{ border-bottom:none; }
+.node-name{ font-size:12.8px; font-weight:600; }
+.node-ip{ font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); }
+.node-ms{ font-family:var(--font-mono); font-size:11.5px; color:var(--heal); background:var(--heal-soft); padding:3px 8px; border-radius:100px;}
+
+.payload{ background:var(--paper-sunken); border-radius:12px; padding:16px; font-family:var(--font-mono); font-size:11.8px; line-height:1.8; color:var(--ink-soft); overflow-x:auto; }
+.payload .k{ color:var(--thread-ink); } .payload .s{ color:var(--heal); }
+
+/* ============================================================
+   SCHEMA
+   ============================================================ */
+.stepper{ display:flex; align-items:center; gap:0; margin-bottom:26px; overflow-x:auto; padding:6px 2px; }
+.step{ display:flex; flex-direction:column; align-items:center; gap:8px; min-width:140px; text-align:center; position:relative;}
+.step-ico{ width:42px; height:42px; border-radius:11px; background:var(--paper-raised); border:1px solid var(--line-strong); display:flex; align-items:center; justify-content:center; }
+.step-ico svg{ width:19px; height:19px; }
+.step.final .step-ico{ background:var(--heal-soft); border-color:var(--heal); color:var(--heal); }
+.step-label{ font-size:11.5px; font-weight:600; color:var(--ink-soft); max-width:120px; }
+.step.final .step-label{ color:var(--heal); }
+.step-connect{ flex:1; height:0; border-top:2px dashed var(--line-strong); margin:0 -2px; min-width:30px; align-self:flex-start; margin-top:21px;}
+
+.table-wrap{ overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-m); background:var(--paper-raised); box-shadow:var(--shadow);}
+table{ width:100%; border-collapse:collapse; font-size:12.8px; min-width:820px;}
+thead th{ text-align:left; font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding:13px 16px; border-bottom:1px solid var(--line); background:var(--paper-sunken); }
+tbody td{ padding:13px 16px; border-bottom:1px solid var(--line); vertical-align:top; }
+tbody tr:last-child td{ border-bottom:none; }
+tbody tr:hover{ background:var(--thread-wash); }
+.mono-cell{ font-family:var(--font-mono); font-weight:600; color:var(--ink); }
+.type-pill{ font-family:var(--font-mono); font-size:10.5px; background:var(--paper-sunken); padding:3px 8px; border-radius:6px; color:var(--ink-soft); }
+.req-yes{ color:var(--heal); font-weight:700; } .req-no{ color:var(--ink-faint); }
+
+/* ============================================================
+   API TABS
+   ============================================================ */
+.api-tabs{ display:flex; gap:2px; border-bottom:1px solid var(--line); margin-bottom:0; }
+.api-tab{ padding:11px 18px; font-size:12.8px; font-weight:600; color:var(--ink-faint); cursor:pointer; border-bottom:2px solid transparent; }
+.api-tab.active{ color:var(--ink); border-bottom-color:var(--thread); }
+.api-code{ border:1px solid var(--line); border-top:none; border-radius:0 0 var(--radius-m) var(--radius-m); background:var(--paper-raised); box-shadow:var(--shadow); }
+.api-code-inner{ display:none; padding:22px 24px; }
+.api-code-inner.active{ display:block; }
+.api-code pre{ margin:0; font-family:var(--font-mono); font-size:12.6px; line-height:1.85; color:var(--ink); white-space:pre-wrap; word-break:break-word;}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+.settings-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.field{ margin-bottom:18px; }
+.field label{ display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); font-family:var(--font-mono); margin-bottom:7px;}
+.field-row{ display:flex; gap:8px; }
+.field input, .field select{
+  flex:1; border:1px solid var(--line-strong); background:var(--paper); border-radius:10px; padding:10px 13px;
+  font-family:var(--font-mono); font-size:12.5px; color:var(--ink); outline:none;
+}
+.slider-val{ font-family:var(--font-mono); font-size:12px; color:var(--thread-ink); font-weight:700; }
+input[type="range"]{ width:100%; accent-color:var(--thread); margin-top:8px; }
+.account-row{ display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:10px; padding:12px 14px; font-size:12.5px; }
+.account-row .live-dot{ width:7px;height:7px;border-radius:50%; background:var(--heal);}
+.account-row b{ color:var(--thread-ink); }
+
+/* ============================================================
+   LANDING
+   ============================================================ */
+.landing{
+  background:var(--paper); min-height:100vh; padding:0;
+}
+.landing-nav{ display:flex; align-items:center; justify-content:space-between; padding:24px 40px; max-width:1180px; margin:0 auto;}
+.landing-hero{ max-width:900px; margin:0 auto; padding:70px 40px 50px; text-align:center; }
+.landing-eyebrow{
+  display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:11.5px;
+  letter-spacing:.06em; text-transform:uppercase; color:var(--thread-ink); background:var(--thread-wash);
+  border:1px solid var(--thread-soft); padding:7px 14px; border-radius:100px; margin-bottom:26px;
+}
+.landing-h1{
+  font-family:var(--font-display); font-weight:600; font-size:58px; line-height:1.06; letter-spacing:-0.02em; margin:0 0 22px;
+}
+.landing-h1 em{ font-style:italic; font-weight:500; color:var(--thread-ink); }
+.landing-sub{ font-size:17px; color:var(--ink-soft); line-height:1.6; max-width:620px; margin:0 auto 34px; }
+.landing-ctas{ display:flex; gap:12px; justify-content:center; margin-bottom:60px; flex-wrap:wrap;}
+.landing-ctas .btn{ padding:14px 26px; font-size:14.5px; border-radius:13px;}
+
+.landing-stitch{ display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:70px; color:var(--ink-faint); }
+.landing-stitch .line{ width:64px; height:0; border-top:2px dashed var(--line-strong); }
+
+.landing-stats{
+  max-width:1080px; margin:0 auto 90px; padding:0 40px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:16px;
+}
+.lstat{ text-align:center; padding:22px 10px; border-right:1px solid var(--line); }
+.lstat:last-child{ border-right:none; }
+.lstat b{ display:block; font-family:var(--font-display); font-size:30px; font-weight:600; color:var(--heal); margin-bottom:4px;}
+.lstat span{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); font-family:var(--font-mono); }
+
+.landing-features{ max-width:1080px; margin:0 auto; padding:0 40px 100px; display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+.lfeat{ padding:26px 24px; }
+.lfeat-ico{ width:38px; height:38px; border-radius:10px; background:var(--ink); display:flex; align-items:center; justify-content:center; margin-bottom:16px;}
+.lfeat-ico svg{ width:18px; height:18px; }
+.lfeat h3{ font-family:var(--font-display); font-size:17px; font-weight:600; margin:0 0 8px;}
+.lfeat p{ font-size:12.8px; color:var(--ink-soft); line-height:1.6; margin:0;}
+
+/* ============================================================
+   CITATION DRAWER
+   ============================================================ */
+.drawer-scrim{
+  position:absolute; inset:0; background:rgba(10,14,10,0.35); opacity:0; pointer-events:none;
+  transition:opacity .25s ease; z-index:40; backdrop-filter:blur(1px);
+}
+.drawer-scrim.open{ opacity:1; pointer-events:auto; }
+.citation-drawer{
+  position:absolute; top:0; right:0; bottom:0; width:380px; max-width:88%;
+  background:var(--paper-raised); border-left:1px solid var(--line); box-shadow:var(--shadow-lg);
+  transform:translateX(100%); transition:transform .32s cubic-bezier(.65,0,.35,1); z-index:41;
+  display:flex; flex-direction:column;
+}
+.citation-drawer.open{ transform:translateX(0); }
+.drawer-head{ display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid var(--line);}
+.drawer-head h3{ font-family:var(--font-display); font-size:16px; margin:0; font-weight:600;}
+.drawer-body{ padding:20px; overflow-y:auto; flex:1; }
+.sim-bar{ height:6px; border-radius:100px; background:var(--paper-sunken); overflow:hidden; margin:8px 0 4px;}
+.sim-bar-fill{ height:100%; background:var(--heal); border-radius:100px; width:91%; }
+.drawer-snippet{ background:var(--paper-sunken); border-radius:10px; padding:14px; font-family:var(--font-mono); font-size:12px; line-height:1.7; color:var(--ink-soft); margin:14px 0; }
+.drawer-snippet mark{ background:var(--thread-soft); color:var(--thread-ink); padding:0 2px; border-radius:3px;}
+
+/* ============================================================
+   CMD-K MODAL
+   ============================================================ */
+.modal-scrim{
+  position:absolute; inset:0; background:rgba(10,14,10,0.4); opacity:0; pointer-events:none;
+  transition:opacity .2s ease; z-index:50; display:flex; align-items:flex-start; justify-content:center; padding-top:80px;
+  backdrop-filter:blur(2px);
+}
+.modal-scrim.open{ opacity:1; pointer-events:auto; }
+.cmdk{
+  width:100%; max-width:560px; background:var(--paper-raised); border-radius:16px; border:1px solid var(--line);
+  box-shadow:var(--shadow-lg); transform:translateY(-10px) scale(.98); opacity:0; transition:transform .2s ease, opacity .2s ease;
+  overflow:hidden;
+}
+.modal-scrim.open .cmdk{ transform:none; opacity:1; }
+.cmdk-input{ display:flex; align-items:center; gap:10px; padding:16px 18px; border-bottom:1px solid var(--line); }
+.cmdk-input svg{ width:16px; height:16px; color:var(--ink-faint); flex-shrink:0;}
+.cmdk-input input{ flex:1; border:none; outline:none; background:transparent; font-size:14.5px; color:var(--ink); font-family:var(--font-body); }
+.cmdk-list{ padding:8px; max-height:340px; overflow-y:auto; }
+.cmdk-sec{ font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); padding:10px 10px 6px;}
+.cmdk-item{ display:flex; align-items:center; gap:11px; padding:10px 10px; border-radius:9px; cursor:pointer; font-size:13px;}
+.cmdk-item:hover{ background:var(--thread-wash); }
+.cmdk-item svg{ width:15px; height:15px; color:var(--ink-faint); flex-shrink:0;}
+.cmdk-item .ci-title{ flex:1; }
+.cmdk-item .ci-meta{ font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint); }
+
+/* toast */
+.toast-wrap{ position:absolute; bottom:22px; right:22px; z-index:60; display:flex; flex-direction:column; gap:8px; align-items:flex-end;}
+.toast{
+  display:flex; align-items:center; gap:9px; background:var(--ink); color:var(--paper); padding:11px 16px;
+  border-radius:11px; font-size:12.5px; font-weight:500; box-shadow:var(--shadow-lg);
+  animation:toastIn .25s ease, toastOut .25s ease 2.4s forwards;
+}
+.toast svg{ width:14px; height:14px; color:var(--heal); flex-shrink:0;}
+@keyframes toastIn{ from{ opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;} }
+@keyframes toastOut{ to{ opacity:0; transform:translateY(-4px);} }
+
+/* ============================================================
+   THEME TOGGLE SWITCH
+   ============================================================ */
+.theme-toggle{
+  width:38px; height:38px; border-radius:11px; border:1px solid var(--line-strong); background:var(--paper-raised);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink); flex-shrink:0;
+}
+.theme-toggle svg{ width:16px; height:16px; }
+
+/* ============================================================
+   CONTAINER QUERIES — iPad breakpoints
+   ============================================================ */
+@container shell (max-width: 980px){
+  .grid-4{ grid-template-columns:repeat(2,1fr); }
+  .settings-grid{ grid-template-columns:1fr; }
+  .landing-stats{ grid-template-columns:repeat(2,1fr); }
+  .landing-features{ grid-template-columns:1fr; }
+  .lstat:nth-child(2){ border-right:none; }
+}
+@container shell (max-width: 900px){
+  .sidebar{
+    position:absolute; top:0; bottom:0; left:0; z-index:45;
+    transform:translateX(-100%); box-shadow:var(--shadow-lg);
+  }
+  .sidebar.open{ transform:translateX(0); }
+  .menu-btn{ display:flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:10px; border:1px solid var(--line-strong); background:var(--paper-raised); cursor:pointer; flex-shrink:0;}
+  .menu-btn svg{ width:17px; height:17px; }
+  .sidebar-scrim{ display:block; position:absolute; inset:0; background:rgba(10,14,10,0.35); z-index:44; opacity:0; pointer-events:none; transition:opacity .2s ease;}
+  .sidebar-scrim.open{ opacity:1; pointer-events:auto; }
+  .two-col{ grid-template-columns:1fr; }
+  .stat-grid{ grid-template-columns:repeat(2,1fr); }
+  .stitch-compare{ grid-template-columns:1fr; }
+  .stitch-pane.before{ border-radius:12px 12px 0 0; }
+  .stitch-pane.after{ border-radius:0 0 12px 12px; }
+  .stitch-seam{ top:50%; left:0; right:0; bottom:auto; width:auto; height:0; transform:translateY(-50%); border-left:none; border-top:2px dashed var(--thread);}
+  .stitch-seam::before{ top:0; left:14%; }
+  .stitch-seam::after{ top:0; left:86%; }
+  .search-trigger .kbd{ display:none; }
+  .btn-sm span.long{ display:none; }
+  .view-scroll{ padding:22px 18px 50px; }
+  .landing-h1{ font-size:42px; }
+  .lfeat, .lib-card{ padding:18px; }
+}
+@container shell (max-width: 620px){
+  .grid-4{ grid-template-columns:1fr; }
+  .stat-grid{ grid-template-columns:1fr; }
+  .vitals-banner{ flex-direction:column; align-items:flex-start; }
+  .landing-stats{ grid-template-columns:1fr; }
+  .lstat{ border-right:none; border-bottom:1px solid var(--line); }
+  .landing-h1{ font-size:34px; }
+  .diff-head{ flex-direction:column; }
+}
+</style>
+</head>
+<body>
+
+<div class="harness">
+  <div class="harness-bar">
+    <div class="label"><span class="dot"></span>Prototype preview — resize to test the real breakpoints</div>
+    <div class="device-toggle" role="group" aria-label="Preview size">
+      <button class="active" data-device="desktop" onclick="setDevice('desktop', this)">Desktop</button>
+      <button data-device="landscape" onclick="setDevice('landscape', this)">iPad Landscape</button>
+      <button data-device="portrait" onclick="setDevice('portrait', this)">iPad Portrait</button>
+    </div>
+    <div class="harness-actions">
+      <button onclick="goLanding()">↺ View landing page</button>
+    </div>
+  </div>
+
+  <div class="stage-frame" id="stageFrame">
+    <div class="device-bezel">
+
+      <!-- ============ LANDING ============ -->
+      <div id="landingPage" class="landing">
+        <nav class="landing-nav">
+          <div class="brand">
+            <div class="brand-mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" stroke-width="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" stroke-dasharray="1 4" stroke-linecap="round"/></svg>
+            </div>
+            <div><div class="brand-name" style="color:var(--ink)">DocuPulse</div><div class="brand-tag">Self‑healing documentation</div></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="enterApp()">Sign in</button>
+        </nav>
+
+        <div class="landing-hero">
+          <div class="landing-eyebrow"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--thread)"></span> Live documentation intelligence</div>
+          <h1 class="landing-h1">Docs change overnight.<br>Your answers <em>shouldn't lag behind.</em></h1>
+          <p class="landing-sub">DocuPulse watches the framework docs your team depends on, repairs its own scrapers the moment a site redesigns, and answers every question with a line you can click straight through to.</p>
+          <div class="landing-ctas">
+            <button class="btn btn-primary" onclick="enterApp()">
+              Open the workspace
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </button>
+            <button class="btn btn-ghost" onclick="enterApp()">See how healing works</button>
+          </div>
+
+          <div class="landing-stitch">
+            <span class="line"></span>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--thread)" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8" stroke-linecap="round"/></svg>
+            <span class="line"></span>
+          </div>
+        </div>
+
+        <div class="landing-stats">
+          <div class="lstat"><b>142</b><span>Active proxy IPs</span></div>
+          <div class="lstat"><b>99.8%</b><span>Scrape success rate</span></div>
+          <div class="lstat"><b>420ms</b><span>Avg response time</span></div>
+          <div class="lstat"><b>18.4k</b><span>Indexed chunks</span></div>
+        </div>
+
+        <div class="landing-features">
+          <div class="lfeat card">
+            <div class="lfeat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" stroke-width="1.8"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" stroke-linejoin="round"/></svg></div>
+            <h3>Reads the source, not a cache</h3>
+            <p>Collectors crawl live API references, changelogs and code samples through a rotating residential network, so nothing you're told is more than minutes old.</p>
+          </div>
+          <div class="lfeat card">
+            <div class="lfeat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M9 12h6M12 9v6" stroke-linecap="round"/></svg></div>
+            <h3>Mends itself when sites move</h3>
+            <p>When a docs site migrates frameworks and old selectors go dark, DocuPulse re-derives extraction rules from plain-language field descriptions — no one has to notice, let alone fix it.</p>
+          </div>
+          <div class="lfeat card">
+            <div class="lfeat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" stroke-width="1.8"><path d="M9 12.5 11 15l4.5-5.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3 4 6v6c0 5 3.4 8.6 8 9 4.6-.4 8-4 8-9V6l-8-3Z"/></svg></div>
+            <h3>Every claim, traced to a line</h3>
+            <p>Answers carry citations to the exact scraped paragraph they came from, so you can check the source instead of trusting a black box.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ APP SHELL ============ -->
+      <div id="appShell" class="app" style="display:none;">
+
+        <aside class="sidebar" id="sidebar">
+          <div class="brand">
+            <div class="brand-mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" stroke-width="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" stroke-dasharray="1 4" stroke-linecap="round"/></svg>
+            </div>
+            <div><div class="brand-name">DocuPulse</div><div class="brand-tag">Self‑healing RAG</div></div>
+          </div>
+
+          <div class="nav-group">
+            <div class="nav-label">Intelligence</div>
+            <div class="nav-item active" data-view="copilot" onclick="showView('copilot', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4 8.6 8.6 0 0 1-4-1L3 20l1.2-4.9A8.4 8.4 0 1 1 21 11.5Z" stroke-linejoin="round"/></svg>
+              <span class="flex1">RAG Copilot</span>
+              <span class="nav-badge pulse"><span class="live-dot pulse-dot"></span><span>Live</span></span>
+            </div>
+            <div class="nav-item" data-view="libraries" onclick="showView('libraries', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15.5a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 0 4 22Z" stroke-linejoin="round"/></svg>
+              <span class="flex1">Doc Libraries</span>
+              <span class="nav-badge">18.4k</span>
+            </div>
+            <div class="nav-item" data-view="diff" onclick="showView('diff', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19h4L18 9l-4-4L4 15v4Z" stroke-linejoin="round"/><path d="M13 6l4 4"/></svg>
+              <span class="flex1">API Diff Radar</span>
+              <span class="nav-badge badge-thread" style="background:var(--thread-soft); color:var(--thread-ink);">New</span>
+            </div>
+          </div>
+
+          <div class="nav-group">
+            <div class="nav-label">Scraping &amp; Pipelines</div>
+            <div class="nav-item" data-view="ops" onclick="showView('ops', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2 4 6v6c0 5 3.4 8.6 8 9 4.6-.4 8-4 8-9V6l-8-4Z" stroke-linejoin="round"/><path d="M9 12.5 11 15l4.5-5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="flex1">Scraper Ops &amp; Health</span>
+            </div>
+            <div class="nav-item" data-view="schema" onclick="showView('schema', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>
+              <span class="flex1">Studio Schema</span>
+            </div>
+            <div class="nav-item" data-view="api" onclick="showView('api', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M13 5l-2 14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="flex1">Developer API</span>
+            </div>
+          </div>
+
+          <div class="sidebar-spacer"></div>
+
+          <div class="nav-group" style="margin-bottom:12px;">
+            <div class="nav-label">Account</div>
+            <div class="nav-item" data-view="settings" onclick="showView('settings', this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+              <span class="flex1">Settings</span>
+            </div>
+          </div>
+
+          <div class="collector-chip">
+            <div>
+              <div class="cc-label">Doc collector</div>
+              <div class="cc-id">c_msxjxlwm78wlkksy4</div>
+            </div>
+            <button class="icon-btn" onclick="copyText('c_msxjxlwm78wlkksy4')" aria-label="Copy collector ID">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            </button>
+          </div>
+        </aside>
+
+        <div class="sidebar-scrim" id="sidebarScrim" onclick="toggleSidebar(false)"></div>
+
+        <div class="main-col">
+          <div class="topbar">
+            <button class="menu-btn" onclick="toggleSidebar(true)" aria-label="Open menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
+            </button>
+            <button class="search-trigger" onclick="openModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg>
+              <span>Search documentation, methods, vector chunks…</span>
+              <span class="kbd">⌘K</span>
+            </button>
+            <div class="topbar-spacer"></div>
+            <div class="topbar-right">
+              <div class="vitals-pill"><span class="live-dot pulse-dot"></span>Self‑healing active</div>
+              <div class="credit-pill">$52.00</div>
+              <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" id="themeBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="themeIcon"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="avatar">VK</div>
+            </div>
+          </div>
+
+          <div class="view-scroll">
+
+            <!-- ===== COPILOT ===== -->
+            <div class="view active" data-view="copilot">
+              <div class="chip-row">
+                <div class="query-chip" onclick="fillComposer('Show me the Bright Data DCA trigger in Node.js')"><span class="qi"></span>Bright Data DCA trigger in Node.js</div>
+                <div class="query-chip" onclick="fillComposer('How do async cookies() and headers() work in Next.js 15?')"><span class="qi"></span>Next.js 15 async cookies() &amp; headers()</div>
+                <div class="query-chip" onclick="fillComposer('Show the LangChain v0.3 bind_tools() pattern')"><span class="qi"></span>LangChain v0.3 bind_tools() pattern</div>
+              </div>
+
+              <div class="chat-thread">
+                <div class="msg">
+                  <div class="msg-avatar ai"><svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" stroke-width="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" stroke-dasharray="1 4" stroke-linecap="round"/></svg></div>
+                  <div class="msg-body">
+                    <div class="msg-card">
+                      <div class="msg-head"><b>DocuPulse</b><span class="badge badge-heal"><span class="dot"></span>Grounded · 18,420 chunks</span></div>
+                      <p class="msg-title">Welcome back.</p>
+                      <p class="msg-text">Ask about anything in your indexed libraries — I'll only answer from documentation that's been scraped in the last few hours, and every line comes with a source you can open yourself.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="msg user">
+                  <div class="msg-avatar user">VK</div>
+                  <div class="msg-body">
+                    <div class="msg-card"><p class="msg-text user-text" style="margin:0;">How do I trigger a DCA collector with self‑healing enabled from Node.js?</p></div>
+                  </div>
+                </div>
+
+                <div class="msg">
+                  <div class="msg-avatar ai"><svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" stroke-width="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" stroke-dasharray="1 4" stroke-linecap="round"/></svg></div>
+                  <div class="msg-body">
+                    <div class="msg-card">
+                      <div class="msg-head"><b>DocuPulse</b><span class="badge badge-heal"><span class="dot"></span>Vector match 0.94</span></div>
+                      <p class="msg-text">Pass <code>enable_self_healing: true</code> in the trigger payload. If the target page's markup drifts mid-run, the collector re-derives its selectors from the schema's field prompts instead of failing the job.</p>
+                      <div class="code-panel">
+                        <div class="code-panel-head"><span>node.js</span><button class="copy-btn" onclick="copyText('dca trigger snippet')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy</button></div>
+                        <pre><code><span class="tok-kw">const</span> res = <span class="tok-kw">await</span> fetch(<span class="tok-str">'https://api.brightdata.com/dca/trigger'</span>, {
+  method: <span class="tok-str">'POST'</span>,
+  body: JSON.stringify([{
+    url: <span class="tok-str">'https://nextjs.org/docs'</span>,
+    auto_heal: <span class="tok-kw">true</span> <span class="tok-com">// re-derive selectors on drift</span>
+  }])
+});</code></pre>
+                      </div>
+                      <div class="citation-row">
+                        <div class="citation-pill" onclick="openDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/></svg>docs.brightdata.com · DCA triggers</div>
+                        <div class="citation-pill" onclick="openDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/></svg>Studio schema · deprecation_flag</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="composer">
+                <textarea id="composerInput" placeholder="Ask a technical question against indexed documentation…"></textarea>
+                <div class="composer-foot">
+                  <div class="target-select"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15.5a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 0 4 22Z"/></svg>Asking <b>all managed docs</b> (4)</div>
+                  <button class="btn btn-primary btn-sm" onclick="showToast('Answer grounded in 18,420 chunks')">
+                    Ask DocuPulse
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4Z" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ===== LIBRARIES ===== -->
+            <div class="view" data-view="libraries">
+              <div class="view-head">
+                <div><div class="eyebrow">Managed sources</div><h1 class="view-title">Doc libraries</h1><p class="view-desc">Every site here is crawled on a schedule, chunked, embedded, and re-mapped automatically the moment its markup changes.</p></div>
+                <button class="btn btn-thread" onclick="showToast('New source form opened')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>Track a new source</button>
+              </div>
+
+              <div class="grid-4">
+                <div class="lib-card">
+                  <div class="lib-top"><div class="lib-icon">▲</div><span class="badge badge-heal"><span class="dot"></span>Grounded</span></div>
+                  <div><div class="lib-title">Next.js 15</div><div class="lib-src">nextjs.org/docs · v15.0.1</div></div>
+                  <p class="lib-desc">Async request headers, Server Components, Server Actions and the React 19 compiler.</p>
+                  <div class="lib-stats"><div class="lib-stat"><b>680</b><span>Pages</span></div><div class="lib-stat"><b>6,120</b><span>Chunks</span></div></div>
+                  <div class="lib-foot"><span class="synced">Synced 4m ago</span><button class="btn btn-ghost btn-sm">Query</button></div>
+                </div>
+                <div class="lib-card">
+                  <div class="lib-top"><div class="lib-icon">⚡</div><span class="badge badge-thread"><span class="dot"></span>Self‑healed</span></div>
+                  <div><div class="lib-title">Bright Data SDK</div><div class="lib-src">docs.brightdata.com · v2.4</div></div>
+                  <p class="lib-desc">DCA triggers, residential proxy routing, and auto‑unblocking reference.</p>
+                  <div class="lib-stats"><div class="lib-stat"><b>420</b><span>Pages</span></div><div class="lib-stat"><b>3,840</b><span>Chunks</span></div></div>
+                  <div class="lib-foot"><span class="synced">Synced 8m ago</span><button class="btn btn-ghost btn-sm">Query</button></div>
+                </div>
+                <div class="lib-card">
+                  <div class="lib-top"><div class="lib-icon">🦜</div><span class="badge badge-heal"><span class="dot"></span>Grounded</span></div>
+                  <div><div class="lib-title">LangChain &amp; LangGraph</div><div class="lib-src">python.langchain.com · v0.3.4</div></div>
+                  <p class="lib-desc">Tool calling, structured output, and stateful multi‑agent orchestration.</p>
+                  <div class="lib-stats"><div class="lib-stat"><b>540</b><span>Pages</span></div><div class="lib-stat"><b>5,240</b><span>Chunks</span></div></div>
+                  <div class="lib-foot"><span class="synced">Synced 22m ago</span><button class="btn btn-ghost btn-sm">Query</button></div>
+                </div>
+                <div class="lib-card">
+                  <div class="lib-top"><div class="lib-icon">⬢</div><span class="badge badge-heal"><span class="dot"></span>Grounded</span></div>
+                  <div><div class="lib-title">Supabase &amp; pgvector</div><div class="lib-src">supabase.com/docs · v2.39</div></div>
+                  <p class="lib-desc">Postgres embeddings, HNSW indexes, and Edge Function auth.</p>
+                  <div class="lib-stats"><div class="lib-stat"><b>390</b><span>Pages</span></div><div class="lib-stat"><b>3,220</b><span>Chunks</span></div></div>
+                  <div class="lib-foot"><span class="synced">Synced 1h ago</span><button class="btn btn-ghost btn-sm">Query</button></div>
+                </div>
+              </div>
+
+              <div class="card inspector">
+                <div class="inspector-head"><h3 class="inspector-title">Similarity inspector</h3><p class="inspector-sub">Run a cosine similarity check against indexed embeddings before you trust a query in production.</p></div>
+                <div class="inspector-row">
+                  <input type="text" value="collector self healing trigger params" id="simInput">
+                  <button class="btn btn-primary btn-sm" onclick="runSim()">Run test</button>
+                </div>
+                <p class="inspector-empty" id="simResult">Results will show the closest matching chunks and their distance score.</p>
+              </div>
+            </div>
+
+            <!-- ===== DIFF RADAR ===== -->
+            <div class="view" data-view="diff">
+              <div class="view-head">
+                <div><div class="eyebrow">Version tracking</div><h1 class="view-title">API diff radar</h1><p class="view-desc">Every re-crawl is diffed against the last known-good version. Breaking changes and new capabilities surface here first.</p></div>
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                  <div class="filter-row">
+                    <button class="chip-toggle active">All</button>
+                    <button class="chip-toggle">Breaking</button>
+                    <button class="chip-toggle">Feature</button>
+                  </div>
+                  <button class="btn btn-thread" onclick="showToast('Diffing latest crawl against baseline…')">Sync live diffs</button>
+                </div>
+              </div>
+
+              <div class="diff-list">
+                <div class="diff-card card">
+                  <div class="diff-head">
+                    <div class="diff-head-left"><span class="diff-tag">Next.js 15.0.0</span><span class="diff-title">Async request headers &amp; cookies migration</span></div>
+                    <span class="badge badge-tear">Breaking change</span>
+                  </div>
+                  <p class="diff-desc">The runtime methods <code>cookies()</code>, <code>headers()</code> and <code>params</code> now return Promises and require <code>await</code>.</p>
+                  <div class="stitch-compare">
+                    <div class="stitch-seam"></div>
+                    <div class="stitch-pane before">
+                      <div class="stitch-label b">● Before</div>
+                      <pre>import { cookies } from 'next/headers';
+const store = cookies();
+const token = store.get('token');</pre>
+                    </div>
+                    <div class="stitch-pane after">
+                      <div class="stitch-label a">● After — live scraped</div>
+                      <pre>import { cookies } from 'next/headers';
+const store = await cookies();
+const token = store.get('token');</pre>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="diff-card card">
+                  <div class="diff-head">
+                    <div class="diff-head-left"><span class="diff-tag">Bright Data SDK v2.4</span><span class="diff-title">Collector trigger gains a self‑healing flag</span></div>
+                    <span class="badge badge-heal">Feature update</span>
+                  </div>
+                  <p class="diff-desc">Setting <code>enable_self_healing: true</code> on a DCA trigger turns on automatic fallback‑selector derivation for that run.</p>
+                  <div class="stitch-compare" style="grid-template-columns:1fr;">
+                    <div class="stitch-pane after" style="border-radius:12px;">
+                      <div class="stitch-label a">● Current — live scraped</div>
+                      <pre>POST /dca/trigger?collector=c_msxjxlwm78wlkksy4&amp;queue_next=1
+Payload: [{"url":"https://nextjs.org/docs","auto_heal":true}]</pre>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="diff-card card">
+                  <div class="diff-head">
+                    <div class="diff-head-left"><span class="diff-tag">LangChain v0.3.4</span><span class="diff-title">initialize_agent() retired for bind_tools()</span></div>
+                    <span class="badge badge-tear">Breaking change</span>
+                  </div>
+                  <p class="diff-desc">Legacy <code>initialize_agent</code> and <code>AgentType</code> enums are gone. Bind tools directly to the model instead.</p>
+                  <div class="stitch-compare">
+                    <div class="stitch-seam"></div>
+                    <div class="stitch-pane before">
+                      <div class="stitch-label b">● Before</div>
+                      <pre>from langchain.agents import initialize_agent, AgentType
+agent = initialize_agent(tools, llm,
+  agent=AgentType.CHAT_CONVERSATIONAL_REACT)</pre>
+                    </div>
+                    <div class="stitch-pane after">
+                      <div class="stitch-label a">● After — live scraped</div>
+                      <pre>llm_with_tools = llm.bind_tools(tools)
+response = llm_with_tools.invoke('...')</pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ===== OPS ===== -->
+            <div class="view" data-view="ops">
+              <div class="vitals-banner">
+                <div class="vitals-banner-left">
+                  <div class="vitals-tags">
+                    <div class="vtag"><span class="live-dot pulse-dot"></span>Collector active</div>
+                    <div class="vtag">142 residential IPs</div>
+                    <div class="vtag">Zero vector drift</div>
+                  </div>
+                  <h2>Autonomous self‑healing control plane</h2>
+                  <p>When a docs site migrates frameworks, DocuPulse re-derives content extraction from plain‑language field descriptions — without corrupting anything already embedded downstream.</p>
+                </div>
+                <div class="vitals-right">
+                  <div class="health-ring">
+                    <svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2.5"/><circle cx="18" cy="18" r="16" fill="none" stroke="#7FD9A8" stroke-width="2.5" stroke-dasharray="100" stroke-dashoffset="1" stroke-linecap="round" transform="rotate(-90 18 18)"/></svg>
+                    <b>99%</b><span>Health</span>
+                  </div>
+                  <button class="btn btn-thread btn-sm" onclick="simulateHealing()">Simulate redesign</button>
+                </div>
+              </div>
+
+              <div class="stat-grid">
+                <div class="stat-card card"><div class="stat-value heal">99.8%</div><div class="stat-label">Crawl success</div></div>
+                <div class="stat-card card"><div class="stat-value">420ms</div><div class="stat-label">Avg latency</div></div>
+                <div class="stat-card card"><div class="stat-value">100%</div><div class="stat-label">Captcha bypass</div></div>
+                <div class="stat-card card"><div class="stat-value thread">142</div><div class="stat-label">Residential IPs</div></div>
+              </div>
+
+              <div class="two-col">
+                <div class="panel card">
+                  <div class="panel-head"><h3 class="panel-title">DOM drift resolution</h3><span class="badge badge-heal" id="driftBadge"><span class="dot"></span>Stable</span></div>
+                  <div class="stitch-compare" id="driftCompare">
+                    <div class="stitch-seam"></div>
+                    <div class="stitch-pane before">
+                      <div class="stitch-label b">● Old selector — failed on v15 redesign</div>
+                      <pre>.theme-doc-markdown .markdown &gt; p
+// Result: 0 nodes returned</pre>
+                    </div>
+                    <div class="stitch-pane after">
+                      <div class="stitch-label a">● Auto‑repaired — 4,200 pages recovered</div>
+                      <pre>article.prose-doc, .content-wrapper main
+// Re-derived from: "Main technical article body"</pre>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel card">
+                  <div class="panel-head"><h3 class="panel-title">Residential unblocking nodes</h3><span class="badge badge-neutral">Live</span></div>
+                  <div class="node-list">
+                    <div class="node-row"><div><div class="node-name">US‑East · Virginia</div><div class="node-ip">142.250.190.46</div></div><span class="node-ms">48ms</span></div>
+                    <div class="node-row"><div><div class="node-name">EU‑Central · Frankfurt</div><div class="node-ip">172.217.16.206</div></div><span class="node-ms">62ms</span></div>
+                    <div class="node-row"><div><div class="node-name">AP‑South · Mumbai</div><div class="node-ip">142.250.193.14</div></div><span class="node-ms">85ms</span></div>
+                    <div class="node-row"><div><div class="node-name">US‑West · Oregon</div><div class="node-ip">172.217.14.238</div></div><span class="node-ms">54ms</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="two-col">
+                <div class="panel card">
+                  <div class="panel-head"><h3 class="panel-title">Live scraper &amp; indexing log</h3><button class="copy-btn" onclick="showToast('Log cleared')">Clear</button></div>
+                  <div class="terminal" id="logTerminal">
+                    <div><span class="t-time">03:10:02</span>Initialized collector session c_msxjxlwm78wlkksy4</div>
+                    <div><span class="t-time">03:10:03</span>Assigned residential proxy · US/EU pool</div>
+                    <div><span class="t-time">03:10:05</span><span class="t-ok">200 OK</span> — crawled 4,200 documentation nodes</div>
+                    <div><span class="t-time">03:10:07</span>Parsed 18,420 chunks with text-embedding-3-small</div>
+                  </div>
+                </div>
+                <div class="panel card">
+                  <div class="panel-head"><h3 class="panel-title">Structured vector payload</h3><button class="copy-btn" onclick="copyText('payload json')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy</button></div>
+                  <div class="payload">{<br>&nbsp;&nbsp;<span class="k">"collector_id"</span>: <span class="s">"c_msxjxlwm78wlkksy4"</span>,<br>&nbsp;&nbsp;<span class="k">"doc_domain"</span>: <span class="s">"docs.brightdata.com"</span>,<br>&nbsp;&nbsp;<span class="k">"status"</span>: <span class="s">"indexed"</span>,<br>&nbsp;&nbsp;<span class="k">"total_chunks"</span>: 18420<br>}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ===== SCHEMA ===== -->
+            <div class="view" data-view="schema">
+              <div class="view-head">
+                <div><div class="eyebrow">Extraction rules</div><h1 class="view-title">Studio schema builder</h1><p class="view-desc">Fields are defined in plain language, not brittle CSS selectors — that's what survives a redesign.</p></div>
+                <button class="btn btn-thread" onclick="showToast('New field added')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>Add schema field</button>
+              </div>
+
+              <div class="stepper">
+                <div class="step"><div class="step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/></svg></div><div class="step-label">Define natural prompts</div></div>
+                <div class="step-connect"></div>
+                <div class="step"><div class="step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 2 8l10 5 10-5-10-5ZM2 16l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="step-label">Studio collector runs</div></div>
+                <div class="step-connect"></div>
+                <div class="step"><div class="step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div><div class="step-label">Vector RAG chunks</div></div>
+                <div class="step-connect"></div>
+                <div class="step final"><div class="step-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="8.5"/><path d="M9 12.5 11 15l4.5-5.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="step-label">Self‑healing · zero drift</div></div>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Field</th><th>Type</th><th>Natural-language description</th><th>Fallback selector</th><th>Required</th></tr></thead>
+                  <tbody>
+                    <tr><td class="mono-cell">doc_title</td><td><span class="type-pill">Text</span></td><td>Main API method headline or documentation page title</td><td class="mono-cell">h1.doc-title</td><td class="req-yes">Yes</td></tr>
+                    <tr><td class="mono-cell">article_markdown</td><td><span class="type-pill">Markdown</span></td><td>Full technical explanation, parameter tables and guide content</td><td class="mono-cell">article.prose-doc</td><td class="req-yes">Yes</td></tr>
+                    <tr><td class="mono-cell">code_snippets</td><td><span class="type-pill">Array&lt;Code&gt;</span></td><td>All syntax-highlighted code blocks with their language</td><td class="mono-cell">pre &gt; code</td><td class="req-yes">Yes</td></tr>
+                    <tr><td class="mono-cell">version_tag</td><td><span class="type-pill">String</span></td><td>Version indicator or release tag, e.g. v15.0, v2.4</td><td class="mono-cell">.version-selector</td><td class="req-no">No</td></tr>
+                    <tr><td class="mono-cell">deprecation_flag</td><td><span class="type-pill">Boolean</span></td><td>Whether the page contains a deprecation banner or sunset notice</td><td class="mono-cell">.callout-warning</td><td class="req-yes">Yes</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ===== API ===== -->
+            <div class="view" data-view="api">
+              <div class="view-head">
+                <div><div class="eyebrow">Integrate</div><h1 class="view-title">Developer API</h1><p class="view-desc">Trigger collector runs and query vector RAG endpoints from any backend or agent.</p></div>
+              </div>
+              <div class="api-tabs">
+                <div class="api-tab active" onclick="showApiTab('curl', this)">cURL</div>
+                <div class="api-tab" onclick="showApiTab('node', this)">Node.js (LangChain)</div>
+                <div class="api-tab" onclick="showApiTab('python', this)">Python (LlamaIndex)</div>
+              </div>
+              <div class="api-code">
+                <div class="api-code-inner active" id="api-curl"><pre>curl -X POST "https://api.brightdata.com/dca/trigger?collector=c_msxjxlwm78wlkksy4" \
+  -H "Authorization: Bearer YOUR_BRIGHT_DATA_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '[{"url":"https://docs.brightdata.com/overview","auto_heal":true}]'</pre></div>
+                <div class="api-code-inner" id="api-node"><pre>import { BrightDataClient } from "brightdata-sdk";
+
+const client = new BrightDataClient({ apiKey: process.env.BD_KEY });
+await client.trigger("c_msxjxlwm78wlkksy4", {
+  url: "https://docs.brightdata.com/overview",
+  autoHeal: true,
+});</pre></div>
+                <div class="api-code-inner" id="api-python"><pre>from brightdata import Client
+
+client = Client(api_key=os.environ["BD_KEY"])
+client.trigger(
+    collector="c_msxjxlwm78wlkksy4",
+    url="https://docs.brightdata.com/overview",
+    auto_heal=True,
+)</pre></div>
+              </div>
+            </div>
+
+            <!-- ===== SETTINGS ===== -->
+            <div class="view" data-view="settings">
+              <div class="view-head">
+                <div><div class="eyebrow">Configuration</div><h1 class="view-title">Settings &amp; integration parameters</h1><p class="view-desc">Bright Data credentials, vector sync behaviour, and chunking controls.</p></div>
+              </div>
+              <div class="settings-grid">
+                <div class="card" style="padding:22px;">
+                  <h3 class="inspector-title" style="margin-bottom:16px;">Bright Data connection</h3>
+                  <div class="field"><label>Active collector ID</label><div class="field-row"><input value="c_msxjxlwm78wlkksy4" readonly><button class="btn btn-ghost btn-sm" onclick="copyText('collector id')">Copy</button></div></div>
+                  <div class="field"><label>API key</label><div class="field-row"><input type="password" value="sk-live-9f81cae2210" readonly><button class="btn btn-ghost btn-sm" onclick="copyText('api key')">Copy</button></div></div>
+                  <div class="field"><label>Active account</label><div class="account-row"><span class="live-dot"></span>vasukumar@omnipulse.ai &nbsp;·&nbsp; <b>$52.00 balance</b></div></div>
+                </div>
+                <div class="card" style="padding:22px;">
+                  <h3 class="inspector-title" style="margin-bottom:16px;">Vector embedding &amp; chunking</h3>
+                  <div class="field"><label>Vector store provider</label><select><option>ChromaDB (local, persistent)</option><option>Pinecone</option><option>Supabase pgvector</option></select></div>
+                  <div class="field"><label>Embedding model</label><input value="text-embedding-3-small · 1536 dimensions" readonly></div>
+                  <div class="field"><label>Chunk token size — <span class="slider-val">512</span></label><input type="range" min="128" max="1024" value="512"></div>
+                  <div class="field" style="margin-bottom:4px;"><label>Cosine match threshold — <span class="slider-val">0.82</span></label><input type="range" min="0" max="100" value="82"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Citation drawer -->
+        <div class="drawer-scrim" id="drawerScrim" onclick="closeDrawer()"></div>
+        <div class="citation-drawer" id="citationDrawer">
+          <div class="drawer-head">
+            <h3>Verified source</h3>
+            <button class="icon-btn" onclick="closeDrawer()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12" stroke-linecap="round"/></svg></button>
+          </div>
+          <div class="drawer-body">
+            <span class="badge badge-thread">docs.brightdata.com · v2.4</span>
+            <div style="margin-top:16px;">
+              <div style="display:flex; justify-content:space-between; font-size:11.5px; color:var(--ink-soft);"><span>Cosine similarity</span><b style="color:var(--heal)">0.94</b></div>
+              <div class="sim-bar"><div class="sim-bar-fill"></div></div>
+            </div>
+            <div class="drawer-snippet">…set <mark>enable_self_healing: true</mark> on the trigger payload. When the collector encounters a DOM structure it no longer recognises mid-run, it falls back to deriving selectors from the schema's natural-language field prompts rather than failing the job outright…</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color:var(--ink-faint); margin-bottom:16px;">
+              <span>Scraped 8 minutes ago</span>
+              <span>Chunk bd_dca_092</span>
+            </div>
+            <button class="btn btn-ghost" style="width:100%;" onclick="showToast('Opening original source…')">Open original page ↗</button>
+          </div>
+        </div>
+
+        <!-- Cmd-K modal -->
+        <div class="modal-scrim" id="modalScrim" onclick="closeModalBg(event)">
+          <div class="cmdk">
+            <div class="cmdk-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg>
+              <input type="text" placeholder="Search docs, jump to a view, or ask a question…" autofocus>
+            </div>
+            <div class="cmdk-list">
+              <div class="cmdk-sec">Jump to</div>
+              <div class="cmdk-item" onclick="showView('diff'); closeModal();"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19h4L18 9l-4-4L4 15v4Z"/></svg><span class="ci-title">API Diff Radar</span><span class="ci-meta">3 breaking changes</span></div>
+              <div class="cmdk-item" onclick="showView('ops'); closeModal();"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2 4 6v6c0 5 3.4 8.6 8 9 4.6-.4 8-4 8-9V6l-8-4Z"/></svg><span class="ci-title">Scraper Ops &amp; Health</span><span class="ci-meta">99.8% success</span></div>
+              <div class="cmdk-sec">Recent chunks</div>
+              <div class="cmdk-item" onclick="showView('copilot'); closeModal();"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/></svg><span class="ci-title">Async cookies() &amp; headers()</span><span class="ci-meta">nextjs.org</span></div>
+              <div class="cmdk-item" onclick="showView('copilot'); closeModal();"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/></svg><span class="ci-title">bind_tools() pattern</span><span class="ci-meta">python.langchain.com</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="toast-wrap" id="toastWrap"></div>
+
+      </div><!-- /appShell -->
+    </div><!-- /device-bezel -->
+    <div class="home-indicator"><span></span></div>
+  </div><!-- /stage-frame -->
+</div>
+
+<script>
+function enterApp(){
+  document.getElementById('landingPage').style.display = 'none';
+  document.getElementById('appShell').style.display = 'flex';
+}
+function goLanding(){
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('landingPage').style.display = 'block';
+}
+function showView(name, el){
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.dataset.view === name));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === name));
+  toggleSidebar(false);
+  document.querySelector('.view-scroll').scrollTop = 0;
+}
+function toggleTheme(){
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  showToast(next === 'dark' ? 'Switched to Night Shift' : 'Switched to Ledger (light)');
+}
+function setDevice(mode, btn){
+  const frame = document.getElementById('stageFrame');
+  frame.classList.remove('mode-landscape','mode-portrait');
+  if(mode==='landscape') frame.classList.add('mode-landscape');
+  if(mode==='portrait') frame.classList.add('mode-portrait');
+  document.querySelectorAll('.device-toggle button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function toggleSidebar(force){
+  const sb = document.getElementById('sidebar');
+  const scrim = document.getElementById('sidebarScrim');
+  const willOpen = force !== undefined ? force : !sb.classList.contains('open');
+  sb.classList.toggle('open', willOpen);
+  scrim.classList.toggle('open', willOpen);
+}
+function openDrawer(){
+  document.getElementById('citationDrawer').classList.add('open');
+  document.getElementById('drawerScrim').classList.add('open');
+}
+function closeDrawer(){
+  document.getElementById('citationDrawer').classList.remove('open');
+  document.getElementById('drawerScrim').classList.remove('open');
+}
+function openModal(){
+  document.getElementById('modalScrim').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('modalScrim').classList.remove('open');
+}
+function closeModalBg(e){ if(e.target.id === 'modalScrim') closeModal(); }
+document.addEventListener('keydown', (e) => {
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); openModal(); }
+  if(e.key === 'Escape'){ closeModal(); closeDrawer(); }
+});
+function fillComposer(text){
+  const input = document.getElementById('composerInput');
+  input.value = text;
+  input.focus();
+}
+function showToast(msg){
+  const wrap = document.getElementById('toastWrap');
+  if(!wrap) return;
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>'+msg+'</span>';
+  wrap.appendChild(t);
+  setTimeout(()=> t.remove(), 2700);
+}
+function copyText(label){
+  try{ navigator.clipboard.writeText(label); }catch(e){}
+  showToast('Copied to clipboard');
+}
+function runSim(){
+  const r = document.getElementById('simResult');
+  r.style.fontStyle = 'normal';
+  r.innerHTML = '<b style="color:var(--heal)">0.91 match</b> — Studio Schema › api_signature: "POST /dca/trigger with enable_self_healing param" <span style="color:var(--ink-faint)">· bd_dca_092</span>';
+}
+function simulateHealing(){
+  const badge = document.getElementById('driftBadge');
+  const compare = document.getElementById('driftCompare');
+  badge.innerHTML = '<span class="dot"></span>Repairing…';
+  badge.className = 'badge badge-tear';
+  compare.style.opacity = '0.4';
+  setTimeout(()=>{
+    badge.innerHTML = '<span class="dot"></span>Stable';
+    badge.className = 'badge badge-heal';
+    compare.style.opacity = '1';
+    showToast('Selector rebuilt · 4,200 pages recovered');
+  }, 1100);
+}
+function showApiTab(name, el){
+  document.querySelectorAll('.api-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.api-code-inner').forEach(c=>c.classList.remove('active'));
+  document.getElementById('api-'+name).classList.add('active');
+}
+</script>
+</body>
+</html>

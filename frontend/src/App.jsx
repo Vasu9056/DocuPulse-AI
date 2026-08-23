@@ -145,7 +145,7 @@ export default function App() {
       let hostName = 'docs.site';
       try {
         hostName = new URL(newDocUrl).hostname;
-      } catch (e) {}
+      } catch (e) { /* ignore */ }
 
       const newLibName = hostName.split('.')[0].toUpperCase() + ' Docs';
 
@@ -805,7 +805,7 @@ export default function App() {
   -d '[{"{"}"url":"https://docs.brightdata.com/overview","auto_heal":true{"}"}]'</pre></div>
                 <div  className={`api-code-inner ${apiTab === "node" ? "active" : ""}`}><pre>import {"{"} BrightDataClient {"}"} from "brightdata-sdk";
 
-const client = new BrightDataClient({"{"} apiKey: process.env.BD_KEY });
+const client = new BrightDataClient({"{"} apiKey: process.env.BD_KEY {"}"});
 await client.trigger("c_msxjxlwm78wlkksy4", {"{"}
   url: "https://docs.brightdata.com/overview",
   autoHeal: true,
