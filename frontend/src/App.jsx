@@ -899,9 +899,9 @@ index = VectorStoreIndex.from_documents(docs)`}
                   <div className="setting-row">
                     <label>API Key</label>
                     <div className="api-key-box">
-                      <input type="password" value="6c23866d-3200-43a2-9501-2a53d28cc4c6" readOnly className="input-readonly" />
+                      <input type="password" value="••••••••••••••••••••••••••••••••" readOnly className="input-readonly" />
                       <button className="btn btn-secondary" onClick={() => {
-                        navigator.clipboard.writeText("6c23866d-3200-43a2-9501-2a53d28cc4c6");
+                        navigator.clipboard.writeText("YOUR_API_KEY_HERE");
                         showToast('Bright Data API Key copied to clipboard!', 'success');
                       }}>Copy</button>
                     </div>

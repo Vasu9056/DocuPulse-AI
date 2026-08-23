@@ -1,6 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../services/api';
 
 export default function LandingPage({ onLaunch }) {
+  const [metrics, setMetrics] = useState({
+    ips: '...',
+    response_time: '...',
+    success: '...',
+    bandwidth: '...'
+  });
+
+  useEffect(() => {
+    // Fetch live metrics from Bright Data SDK / backend
+    api.getHealth()
+      .then(data => {
+        if (data && data.metrics) {
+          // Purely dynamic extraction, zero static fallbacks
+          let activeIpCount = '0';
+          if (data.proxy_pool) {
+            const match = data.proxy_pool.match(/(\d+)/);
+            if (match) activeIpCount = match[0];
+          }
+          
+          setMetrics({
+            ips: `${activeIpCount}+`,
+            response_time: data.metrics.avg_response_time,
+            success: data.metrics.success_rate,
+            bandwidth: data.metrics.bandwidth_saved
+          });
+        }
+      })
+      .catch(err => console.error("Could not fetch live metrics", err));
+  }, []);
+
   return (
     <div id="view-landing" className="landing-page">
       <div className="landing-hero">
@@ -27,39 +58,39 @@ export default function LandingPage({ onLaunch }) {
           </button>
         </div>
 
-        {/* Live RAG & Scraper Metrics */}
+        {/* Live Bright Data Metrics */}
         <div className="landing-stats">
           <div className="landing-stat">
-            <div className="landing-stat-value">18,420</div>
-            <div className="landing-stat-label">Vector Chunks Synced</div>
+            <div className="landing-stat-value">{metrics.ips}</div>
+            <div className="landing-stat-label">Active Proxy IPs</div>
           </div>
           <div className="landing-stat">
-            <div className="landing-stat-value green">99.8%</div>
-            <div className="landing-stat-label">RAG Grounded Precision</div>
+            <div className="landing-stat-value green">{metrics.success}</div>
+            <div className="landing-stat-label">Scrape Success Rate</div>
           </div>
           <div className="landing-stat">
-            <div className="landing-stat-value blue">3 DOM Drifts</div>
-            <div className="landing-stat-label">Auto-Healed (0 Downtime)</div>
+            <div className="landing-stat-value blue">{metrics.response_time}</div>
+            <div className="landing-stat-label">Avg Response Time</div>
           </div>
           <div className="landing-stat">
-            <div className="landing-stat-value amber">$52.00</div>
-            <div className="landing-stat-label">Active Scraping Credits</div>
+            <div className="landing-stat-value amber">{metrics.bandwidth}</div>
+            <div className="landing-stat-label">Bandwidth Saved</div>
           </div>
         </div>
 
         {/* Feature Pillars */}
         <div className="landing-features">
-          <div className="landing-feature-card">
+          <div className="landing-feature-card" onClick={onLaunch} style={{ cursor: 'pointer' }}>
             <div className="feature-icon blue">⚡</div>
             <h3>Continuous Doc Scraping</h3>
             <p>Scrapes live API reference pages, code examples, and release notes with residential proxy unblocking.</p>
           </div>
-          <div className="landing-feature-card">
+          <div className="landing-feature-card" onClick={onLaunch} style={{ cursor: 'pointer' }}>
             <div className="feature-icon emerald">🛡️</div>
             <h3>Self-Healing Engine</h3>
             <p>When docs migrate frameworks (e.g. Docusaurus ➔ Mintlify), plain-language field descriptions auto-repair selectors.</p>
           </div>
-          <div className="landing-feature-card">
+          <div className="landing-feature-card" onClick={onLaunch} style={{ cursor: 'pointer' }}>
             <div className="feature-icon purple">🎯</div>
             <h3>Verified Citation RAG</h3>
             <p>Every line of code and answer is backed by direct, clickable links to the exact scraped doc paragraph.</p>
