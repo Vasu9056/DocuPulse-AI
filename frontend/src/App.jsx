@@ -698,7 +698,7 @@ export default function App() {
                 </div>
                 <div className="vitals-right">
                   <div className="health-ring">
-                    <svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2.5"/><circle cx="18" cy="18" r="16" fill="none" stroke="#7FD9A8" strokeWidth="2.5" strokeDasharray="100" strokeDashoffset="1" strokeLinecap="round" transform="rotate(-90 18 18)"/></svg>
+                    <svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="none" stroke="var(--line-strong)" strokeWidth="2.5"/><circle cx="18" cy="18" r="16" fill="none" stroke="#7FD9A8" strokeWidth="2.5" strokeDasharray="100" strokeDashoffset="1" strokeLinecap="round" transform="rotate(-90 18 18)"/></svg>
                     <b>99%</b><span>Health</span>
                   </div>
                   <button className="btn btn-thread btn-sm" onClick={() => showToast("Selector rebuilt · 4,200 pages recovered")}>Simulate redesign</button>

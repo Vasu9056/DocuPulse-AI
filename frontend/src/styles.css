@@ -513,23 +513,23 @@ html[data-theme="dark"] .code-panel{ background:var(--paper-sunken); }
    SCRAPER OPS
    ============================================================ */
 .vitals-banner{
-  background:linear-gradient(135deg, var(--ink) 0%, #26302B 100%);
+  background:var(--paper-raised); border:1px solid var(--line);
   border-radius:var(--radius-l); padding:26px 30px; color:var(--paper); margin-bottom:22px;
   display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;
   position:relative; overflow:hidden;
 }
-html[data-theme="dark"] .vitals-banner{ background:linear-gradient(135deg,#171D16 0%, #0B0E0A 100%); color: #EEEEEE; }
+
 .vitals-banner-left{ max-width:600px; }
 .vitals-tags{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
-.vtag{ display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.16); padding:5px 11px; border-radius:100px; font-size:11px; font-weight:600; }
+.vtag{ display:flex; align-items:center; gap:6px; background:var(--paper-sunken); border:1px solid var(--line); padding:5px 11px; border-radius:100px; font-size:11px; font-weight:600; }
 .vtag .live-dot{ width:6px;height:6px;border-radius:50%; background:#7FD9A8;}
 .vitals-banner h2{ font-family:var(--font-display); font-size:23px; font-weight:600; margin:0 0 8px; }
-.vitals-banner p{ font-size:13px; color:rgba(238,238,230,0.72); line-height:1.55; margin:0; }
+.vitals-banner p{ font-size:13px; color:var(--ink-soft); line-height:1.55; margin:0; }
 .vitals-right{ display:flex; align-items:center; gap:18px; }
 .health-ring{ width:90px; height:90px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-direction:column; position:relative;}
 .health-ring svg{ position:absolute; inset:0; }
 .health-ring b{ font-family:var(--font-display); font-size:21px; }
-.health-ring span{ font-size:8.5px; text-transform:uppercase; letter-spacing:.06em; color:rgba(238,238,230,0.6); }
+.health-ring span{ font-size:8.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); }
 
 .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
 .stat-card{ padding:18px 20px; }
@@ -543,8 +543,8 @@ html[data-theme="dark"] .vitals-banner{ background:linear-gradient(135deg,#171D1
 .panel-title{ font-family:var(--font-display); font-weight:600; font-size:15.5px; margin:0; display:flex; align-items:center; gap:8px;}
 
 .terminal{
-  background:#12160F; border-radius:12px; padding:14px 16px; font-family:var(--font-mono); font-size:11.8px;
-  line-height:1.85; color:#B7C4B0; max-height:230px; overflow-y:auto; border:1px solid rgba(255,255,255,0.06);
+  background:var(--paper-sunken); border-radius:12px; padding:14px 16px; font-family:var(--font-mono); font-size:11.8px;
+  line-height:1.85; color:var(--ink-soft); max-height:230px; overflow-y:auto; border:1px solid rgba(255,255,255,0.06);
 }
 .terminal .t-time{ color:#6E7A69; margin-right:8px;}
 .terminal .t-ok{ color:#7FD9A8; }
