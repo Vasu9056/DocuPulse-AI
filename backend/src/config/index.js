@@ -1,6 +1,3 @@
-/**
- * Application Configuration Module
- */
 require('dotenv').config();
 
 module.exports = {

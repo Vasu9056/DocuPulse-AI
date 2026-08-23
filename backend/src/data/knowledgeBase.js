@@ -1,6 +1,3 @@
-/**
- * Knowledge Base & Seed Vector Store
- */
 const config = require('../config');
 
 const VECTOR_STORE = [

@@ -1,6 +1,3 @@
-/**
- * Document Libraries Controller
- */
 const { DOC_LIBRARIES } = require('../data/knowledgeBase');
 
 exports.getDocStores = (req, res, next) => {

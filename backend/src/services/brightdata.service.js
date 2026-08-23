@@ -7,10 +7,7 @@ class BrightDataService {
     this.apiToken = config.brightData.apiToken;
     this.baseUrl = config.brightData.baseUrl;
   }
-
-  /**
-   * Trigger a Scraper Studio Collector Run
-   */
+  
   async triggerCollector({ url, autoHeal = true }) {
     const targetUrl = url || 'https://nextjs.org/docs/app/building-your-application/upgrading/version-15';
 

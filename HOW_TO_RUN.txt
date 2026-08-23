@@ -1,108 +1,34 @@
-================================================================================
-           DOCUPULSE AI — HOW TO RUN FRONTEND & BACKEND GUIDE
-================================================================================
+How to run DocuPulse AI locally
+-------------------------------
 
-DocuPulse AI is a Self-Healing Documentation RAG & Developer Copilot powered by 
-Bright Data Scraper Studio (Collector: c_msxjxlwm78wlkksy4) and Google Gemini 1.5 Flash.
+This is pretty straightforward to get running. You just need Node.js installed.
 
---------------------------------------------------------------------------------
-1. PREREQUISITES
---------------------------------------------------------------------------------
-- Node.js (v18 or higher recommended)
-- npm (installed with Node.js)
-- Modern Web Browser (Chrome, Safari, Brave, Edge)
+1. Setup the Backend
+First, open your terminal and go to the backend folder:
+cd backend
 
---------------------------------------------------------------------------------
-2. STEP-BY-STEP RUN INSTRUCTIONS
---------------------------------------------------------------------------------
+Copy the env template:
+cp .env.example .env
 
-You will need TWO terminal tabs open (one for Backend, one for Frontend).
+Open that .env file and add your Bright Data token and your Gemini API Key.
+Then install everything and start the server:
+npm install
+npm start
 
-----------------------------------
-TAB 1: START THE BACKEND API
-----------------------------------
-1. Open Terminal and navigate to the project directory:
-   cd /Users/vasukumar.langdecha/Documents/hackathone/backend
+The backend will start running on http://localhost:3001.
 
-2. Install dependencies (if not already installed):
-   npm install
+2. Setup the Frontend
+Open a second terminal window (leave the backend running) and go to the frontend folder:
+cd frontend
 
-3. Start the Express API server:
-   npm start
-   (or: node server.js)
+Install the packages and run the dev server:
+npm install
+npm run dev
 
--> Backend will start on: http://localhost:3001
--> Configured API Endpoints:
-   - POST /api/chat/rag         (Gemini 1.5 Flash + Vector RAG)
-   - POST /api/vector-search    (Cosine similarity search)
-   - POST /api/scraper/trigger  (Bright Data DCA Collector Trigger)
-   - GET  /api/scraper/health   (Proxy pool & health metrics)
-   - GET  /api/breaking-diff    (API breaking changes radar)
-   - GET  /api/doc-stores       (Managed documentation libraries)
+Now just open http://localhost:5173 in your browser and you're good to go!
 
+Notes for the judges:
+When testing the app, try asking it a question about Next.js or LangChain. You'll see it gives line-by-line citations using the data we scraped via our Collector ID.
+If you click around the sidebar, you can also see the UI we built to simulate the self-healing process.
 
-----------------------------------
-TAB 2: START THE FRONTEND (REACT + VITE)
-----------------------------------
-1. Open a NEW Terminal tab and navigate to frontend directory:
-   cd /Users/vasukumar.langdecha/Documents/hackathone/frontend
-
-2. Install dependencies (if not already installed):
-   npm install
-
-3. Start the Vite React development server:
-   npm run dev
-
--> Frontend will start on: http://localhost:5173
-
-
---------------------------------------------------------------------------------
-3. OPEN THE APPLICATION
---------------------------------------------------------------------------------
-Open your browser and visit:
-👉 http://localhost:5173
-
-Vite automatically proxies all `/api` calls to the backend on `http://127.0.0.1:3001`.
-
-
---------------------------------------------------------------------------------
-4. KEY DEMO FEATURES TO SHOWCASE
---------------------------------------------------------------------------------
-1. Hero Landing Page:
-   - High-impact metrics (18,420 chunks, 99.8% precision, 3 auto-healed drifts).
-   - Click "Launch DocuPulse Copilot".
-
-2. Grounded RAG Copilot (Chat):
-   - Click prompt chips or type technical queries (e.g. Next.js 15 async cookies).
-   - Live Gemini synthesis + copyable syntax-highlighted code.
-
-3. Verified Citation Drawer:
-   - Click any green citation badge below an AI response.
-   - Slide-over drawer opens showing cosine similarity score & exact source markdown.
-
-4. Autonomous Self-Healing Scraper (Scraper Ops):
-   - Click "Scraper Ops & Health" in the sidebar.
-   - Click "Simulate Doc Framework Redesign" to watch real-time DOM drift recovery.
-
-5. API Breaking Changes Radar:
-   - Click "API Diff Radar" in the sidebar.
-   - Side-by-side visual diffs for Next.js 15, LangChain v0.3, Supabase pgvector.
-
-6. Keyboard Shortcuts:
-   - Press Cmd + K (or Ctrl + K) for Global Search Modal.
-   - Press ESC to close modals and drawers.
-
-
---------------------------------------------------------------------------------
-5. TROUBLESHOOTING & COMMON COMMANDS
---------------------------------------------------------------------------------
-If you see "Error: listen EADDRINUSE: address already in use :::3001" or ":::5173":
-Run this command in Terminal to free up the ports:
-
-lsof -ti:3001,5173 | xargs kill -9
-
-Then restart the backend (`npm start`) and frontend (`npm run dev`).
-
-================================================================================
-                          HAPPY HACKING & GOOD LUCK! 🚀
-================================================================================
+If you get a "port in use" error, just kill whatever is on 3001 or 5173 and try again!

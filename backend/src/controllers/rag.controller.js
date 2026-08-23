@@ -1,6 +1,3 @@
-/**
- * RAG Controller
- */
 const ragService = require('../services/rag.service');
 const vectorService = require('../services/vector.service');
 

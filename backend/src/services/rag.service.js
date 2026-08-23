@@ -1,15 +1,8 @@
-/**
- * RAG Orchestration Service
- * Connects vector retrieval with grounded LLM prompting and citation generation.
- */
 const axios = require('axios');
 const vectorService = require('./vector.service');
 const config = require('../config');
 
 class RagService {
-  /**
-   * Process a technical developer query against the documentation RAG index
-   */
   async processQuery({ query, scope }) {
     if (!query || query.trim() === '') {
       throw new Error('Query string cannot be empty');
@@ -51,21 +44,21 @@ Return your response STRICTLY as a valid JSON object matching this schema:
 Return only the raw JSON. Do not wrap it in markdown code block markers.`;
 
         const response = await axios.post(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${geminiKey}`,
           {
             contents: [
               {
                 parts: [
-                  { text: `${systemPrompt}\n\n[CONTEXT]\n${contextText}\n\n[USER QUESTION]\n${query}` }
+                  { text: `${systemPrompt}\n\n[USER QUESTION]\n${query}` }
                 ]
               }
             ],
             generationConfig: {
-              temperature: 0.1,
+              temperature: 0.2,
               responseMimeType: "application/json"
             }
           },
-          { timeout: 8000 }
+          { timeout: 15000 }
         );
 
         const geminiText = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
