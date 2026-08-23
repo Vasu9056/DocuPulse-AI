@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniPay Developers | API Reference</title>
+    <!-- Tailwind CSS for professional styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background-color: #ffffff; color: #1f2937; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+        
+        /* Version 1 Target Classes for Scraper */
+        .v1-api-header { color: #111827; }
+        .v1-api-endpoint { background-color: #f3f4f6; }
+        .v1-param-row { border-bottom: 1px solid #e5e7eb; }
+        .v1-param-name { color: #dc2626; font-weight: 600; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="w-64 bg-gray-50 border-r border-gray-200 flex-shrink-0 h-full overflow-y-auto hidden md:block">
+        <div class="p-6">
+            <div class="flex items-center gap-2 mb-8">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">O</div>
+                <span class="text-lg font-bold text-gray-900">OmniPay API</span>
+            </div>
+            <nav class="space-y-6">
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Payments</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-sm font-medium text-blue-600 bg-blue-50 block px-2 py-1.5 rounded">Create a Charge</a></li>
+                        <li><a href="#" class="text-sm font-medium text-gray-600 hover:text-gray-900 block px-2 py-1.5">Retrieve a Charge</a></li>
+                        <li><a href="#" class="text-sm font-medium text-gray-600 hover:text-gray-900 block px-2 py-1.5">Update a Charge</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Customers</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-sm font-medium text-gray-600 hover:text-gray-900 block px-2 py-1.5">Create a Customer</a></li>
+                        <li><a href="#" class="text-sm font-medium text-gray-600 hover:text-gray-900 block px-2 py-1.5">Delete a Customer</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT SCROLL AREA -->
+    <main class="flex-1 overflow-y-auto">
+        <!-- TWO COLUMN LAYOUT (Docs on left, Code on right) -->
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row">
+            
+            <!-- DOCS COLUMN -->
+            <div class="flex-1 p-8 lg:p-12 lg:max-w-3xl">
+                <div class="mb-2 text-sm font-semibold text-blue-600 tracking-wide uppercase">Core API</div>
+                
+                <!-- Target 1: Title -->
+                <h1 class="text-3xl font-bold mb-4 v1-api-header">Create a Charge</h1>
+                
+                <p class="text-gray-600 text-lg mb-8 leading-relaxed">
+                    To charge a credit card or other payment source, you create a <code class="bg-gray-100 text-pink-500 px-1.5 py-0.5 rounded text-sm font-mono">Charge</code> object. If your API key is in test mode, the supplied payment source (e.g., card) won't actually be charged.
+                </p>
+
+                <hr class="border-gray-200 mb-8">
+
+                <h3 class="text-xl font-bold mb-4">HTTP Request</h3>
+                
+                <!-- Target 2: Endpoint URL -->
+                <div class="flex items-center gap-3 p-3 rounded-md mb-10 v1-api-endpoint border border-gray-200">
+                    <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold font-mono tracking-wide">POST</span>
+                    <span class="font-mono text-gray-800 text-sm">https://api.omnipay.com/v1/charges</span>
+                </div>
+
+                <h3 class="text-xl font-bold mb-4">Body Parameters</h3>
+                
+                <!-- Target 3: Parameters -->
+                <div class="border-t border-gray-200">
+                    <div class="py-4 v1-param-row">
+                        <div class="flex items-baseline gap-3 mb-1">
+                            <span class="font-mono text-sm v1-param-name">amount</span>
+                            <span class="text-xs text-gray-500 font-mono">integer</span>
+                            <span class="text-xs font-semibold text-red-700 bg-red-50 px-1.5 py-0.5 rounded uppercase">Required</span>
+                        </div>
+                        <p class="text-sm text-gray-600">Amount intended to be collected by this payment. A positive integer representing how much to charge in the smallest currency unit (e.g., 100 cents to charge $1.00).</p>
+                    </div>
+
+                    <div class="py-4 v1-param-row">
+                        <div class="flex items-baseline gap-3 mb-1">
+                            <span class="font-mono text-sm v1-param-name">currency</span>
+                            <span class="text-xs text-gray-500 font-mono">string</span>
+                            <span class="text-xs font-semibold text-red-700 bg-red-50 px-1.5 py-0.5 rounded uppercase">Required</span>
+                        </div>
+                        <p class="text-sm text-gray-600">Three-letter ISO currency code, in lowercase. Must be a supported currency.</p>
+                    </div>
+
+                    <div class="py-4 v1-param-row">
+                        <div class="flex items-baseline gap-3 mb-1">
+                            <span class="font-mono text-sm v1-param-name">description</span>
+                            <span class="text-xs text-gray-500 font-mono">string</span>
+                        </div>
+                        <p class="text-sm text-gray-600">An arbitrary string which you can attach to a Charge object. It is displayed when in the web interface alongside the charge.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CODE COLUMN (Stripe Style) -->
+            <div class="w-full lg:w-[450px] bg-[#0d1117] min-h-screen p-6 lg:p-8 text-sm">
+                <h4 class="text-gray-400 font-semibold mb-4 text-xs uppercase tracking-wider">Example Request</h4>
+                <div class="bg-[#161b22] border border-[#30363d] rounded-md p-4 mb-8 overflow-x-auto">
+<pre class="font-mono text-gray-300 leading-relaxed text-xs">
+<span class="text-pink-400">curl</span> https://api.omnipay.com/v1/charges \
+  <span class="text-blue-400">-u</span> sk_test_YOUR_API_KEY_HERE_123: \
+  <span class="text-blue-400">-d</span> amount=2000 \
+  <span class="text-blue-400">-d</span> currency=usd \
+  <span class="text-blue-400">-d</span> source=tok_mastercard \
+  <span class="text-blue-400">-d</span> description=<span class="text-green-400">"Charge for test@example.com"</span>
+</pre>
+                </div>
+
+                <h4 class="text-gray-400 font-semibold mb-4 text-xs uppercase tracking-wider">Response</h4>
+                <div class="bg-[#161b22] border border-[#30363d] rounded-md p-4 overflow-x-auto">
+<pre class="font-mono text-gray-300 leading-relaxed text-xs">
+{
+  <span class="text-blue-300">"id"</span>: <span class="text-green-400">"ch_1Hh1Za2eZvKYlo2CqE5h"</span>,
+  <span class="text-blue-300">"object"</span>: <span class="text-green-400">"charge"</span>,
+  <span class="text-blue-300">"amount"</span>: <span class="text-purple-400">2000</span>,
+  <span class="text-blue-300">"currency"</span>: <span class="text-green-400">"usd"</span>,
+  <span class="text-blue-300">"description"</span>: <span class="text-green-400">"Charge for test@example.com"</span>,
+  <span class="text-blue-300">"paid"</span>: <span class="text-purple-400">true</span>,
+  <span class="text-blue-300">"status"</span>: <span class="text-green-400">"succeeded"</span>
+}
+</pre>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+</body>
+</html>
