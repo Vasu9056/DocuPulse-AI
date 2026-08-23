@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { api } from './services/api';
 
 export default function App() {
-  const [isAppActive, setIsAppActive] = useState(false);
-  const [activeView, setActiveView] = useState('copilot');
+  const [isAppActive, setIsAppActive] = useState(() => localStorage.getItem("isAppActive") === "true");
+  const [activeView, setActiveView] = useState(() => localStorage.getItem("activeView") || "copilot");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeCitation, setActiveCitation] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,6 +15,15 @@ export default function App() {
   const [selectedScope, setSelectedScope] = useState('all');
   const [diffFilter, setDiffFilter] = useState('all');
   const [diffCards, setDiffCards] = useState([]);
+
+  useEffect(() => {
+    localStorage.setItem("isAppActive", isAppActive);
+  }, [isAppActive]);
+
+  useEffect(() => {
+    localStorage.setItem("activeView", activeView);
+  }, [activeView]);
+
 
   useEffect(() => {
     // Fetch dynamic diffs
@@ -833,13 +842,7 @@ client.trigger(
                   <div className="field"><label>API key</label><div className="field-row"><input type="password" value="sk-live-9f81cae2210" readOnly /><button className="btn btn-ghost btn-sm" onClick={() => { showToast('Copied to clipboard'); }}>Copy</button></div></div>
                   <div className="field"><label>Active account</label><div className="account-row"><span className="live-dot"></span>vasukumar@omnipulse.ai &nbsp;·&nbsp; <b>$52.00 balance</b></div></div>
                 </div>
-                <div className="card" >
-                  <h3 className="inspector-title" >Vector embedding &amp; chunking</h3>
-                  <div className="field"><label>Vector store provider</label><select><option>ChromaDB (local, persistent)</option><option>Pinecone</option><option>Supabase pgvector</option></select></div>
-                  <div className="field"><label>Embedding model</label><input value="text-embedding-3-small · 1536 dimensions" readOnly /></div>
-                  <div className="field"><label>Chunk token size — <span className="slider-val">512</span></label><input type="range" min="128" max="1024" defaultValue="512" /></div>
-                  <div className="field" ><label>Cosine match threshold — <span className="slider-val">0.82</span></label><input type="range" min="0" max="100" defaultValue="82" /></div>
-                </div>
+                
               </div>
             </div>
 
