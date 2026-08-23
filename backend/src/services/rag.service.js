@@ -16,7 +16,9 @@ class RagService {
       title: `${chunk.library_name} • ${chunk.title}`,
       score: `${(chunk.cosine_score * 100).toFixed(1)}% Match`,
       url: chunk.source_url,
-      markdown: chunk.markdown,
+      markdown: chunk.answer + "
+
+",
       chunk_id: chunk.id
     }));
 
@@ -29,7 +31,7 @@ class RagService {
     const geminiKey = config.ai.geminiApiKey;
     if (geminiKey && geminiKey.length > 5) {
       try {
-        const contextText = topChunks.map(c => `Source: ${c.library_name} (${c.title})\nContent:\n${c.markdown}\nCode Sample:\n${c.code}`).join('\n\n');
+        const contextText = topChunks.map(c => `Source: ${c.library_name} (${c.title})\nContent:\n${c.answer}\nCode Sample:\n${c.code}`).join('\n\n');
         
         const systemPrompt = `You are DocuPulse AI, an expert technical copilot. 
 Answer the user's question strictly based ONLY on the provided scraped documentation context. 
