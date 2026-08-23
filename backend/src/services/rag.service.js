@@ -49,7 +49,7 @@ Return only the raw JSON. Do not wrap it in markdown code block markers.`;
             contents: [
               {
                 parts: [
-                  { text: `${systemPrompt}\n\n[USER QUESTION]\n${query}` }
+                  { text: `${systemPrompt}\n\n[CONTEXT]\n${contextText}\n\n[USER QUESTION]\n${query}` }
                 ]
               }
             ],

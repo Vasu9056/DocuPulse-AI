@@ -1,0 +1,17 @@
+[
+  {
+    "library": "Next.js 15.0.0",
+    "type": "breaking",
+    "title": "Async Request Headers & Cookies Migration",
+    "description": "The runtime methods cookies(), headers(), and params are now asynchronous Promises requiring await.",
+    "deprecated_code": "import { cookies } from 'next/headers';\nconst cookieStore = cookies();\nconst token = cookieStore.get('token');",
+    "current_code": "import { cookies } from 'next/headers';\nconst cookieStore = await cookies();\nconst token = cookieStore.get('token');"
+  },
+  {
+    "library": "Bright Data SDK v2.4",
+    "type": "updated",
+    "title": "Collector DCA Trigger with Self-Healing Parameter",
+    "description": "Added enable_self_healing: true flag in DCA execution triggers for automatic fallback selector derivation.",
+    "current_code": "POST https://api.brightdata.com/dca/trigger?collector=c_msxjxlwm78wlkksy4&queue_next=1\nPayload: [{\"url\": \"https://nextjs.org/docs\", \"auto_heal\": true}]"
+  }
+]
