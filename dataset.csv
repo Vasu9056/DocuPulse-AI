@@ -140,3 +140,21 @@ chunk_tailwind_01,tailwind,Tailwind CSS,Tailwind CSS v4 Engine and Configuration
 .btn-primary {
   @apply bg-brand text-white px-4 py-2 rounded shadow hover:bg-brand-dark;
 }"
+chunk_langchain_01,langchain,LangChain & LangGraph,LangChain Tool Calling Agent (bind_tools),https://python.langchain.com/docs/modules/agents/how_to/tool_calling/,v0.3.4,langchain|python|agent|tool|llm|reasoning|bind_tools|invoke|graph|langgraph|openai,Creating Tool Calling Agents with bind_tools(),"In LangChain v0.3, the recommended way to create agents that can use external tools is by using `bind_tools()` on supported chat models (like ChatOpenAI). You pass a list of Pydantic models or Python functions to `bind_tools()`. The model will then output a `tool_calls` field when it decides to use a tool, which you can execute and return as `ToolMessage`s.",python,"from langchain_openai import ChatOpenAI
+from langchain_core.tools import tool
+
+@tool
+def get_weather(location: str) -> str:
+    """"""Get the current weather for a location.""""""
+    return f""The weather in {location} is sunny.""
+
+# 1. Define tools
+tools = [get_weather]
+
+# 2. Bind tools to the LLM
+llm = ChatOpenAI(model=""gpt-4o"")
+llm_with_tools = llm.bind_tools(tools)
+
+# 3. Invoke the model
+res = llm_with_tools.invoke(""What is the weather in Tokyo?"")
+print(res.tool_calls) # Model decides to call get_weather"

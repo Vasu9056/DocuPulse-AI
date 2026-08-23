@@ -15,6 +15,12 @@ class VectorService {
     const lowerQuery = (query || '').toLowerCase().trim();
 
     let candidates = this.store;
+    
+    // Strict Scope Filtering
+    if (scope && scope !== 'all') {
+      const normalizedScope = scope.replace('lib_', '');
+      candidates = candidates.filter(chunk => chunk.library === normalizedScope);
+    }
 
     let scored = candidates.map(chunk => {
       let score = 0.50;
@@ -40,14 +46,7 @@ class VectorService {
         score += 0.25;
       }
 
-      // Scope match boost
-      if (scope && scope !== 'all') {
-        if (chunk.library === scope) {
-          score += 0.50; // Strong boost for explicitly selected Target Doc
-        } else {
-          score -= 0.30; // Deprioritize other docs when user selected a specific doc
-        }
-      }
+
 
       return {
         ...chunk,

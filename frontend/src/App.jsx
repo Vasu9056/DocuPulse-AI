@@ -247,7 +247,7 @@ export default function App() {
         <nav className="landing-nav">
           <div className="brand">
             <div className="brand-mark">
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" strokeWidth="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" strokeDasharray="1 4" strokeLinecap="round"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" strokeWidth="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" strokeLinecap="round"/></svg>
             </div>
             <div><div className="brand-name" >DocuPulse</div><div className="brand-tag">Self‑healing documentation</div></div>
           </div>
@@ -316,7 +316,7 @@ export default function App() {
         <aside className={`sidebar ${isSidebarOpen ? "open" : ""}`} id="sidebar">
           <div className="brand">
             <div className="brand-mark">
-              <svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" strokeWidth="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" strokeDasharray="1 4" strokeLinecap="round"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" strokeWidth="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" strokeLinecap="round"/></svg>
             </div>
             <div><div className="brand-name">DocuPulse</div><div className="brand-tag">Self‑healing RAG</div></div>
           </div>
@@ -409,7 +409,7 @@ export default function App() {
               
               <div className="chat-thread">
                 <div className="msg">
-                  <div className="msg-avatar ai"><svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" strokeWidth="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" strokeDasharray="1 4" strokeLinecap="round"/></svg></div>
+                  <div className="msg-avatar ai"><svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" strokeWidth="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" strokeLinecap="round"/></svg></div>
                   <div className="msg-body">
                     <div className="msg-card">
                       <div className="msg-head"><b>DocuPulse AI</b><span className="badge badge-heal"><span className="dot"></span>Grounded Vector RAG</span></div>
@@ -435,7 +435,7 @@ export default function App() {
                     </div>
                   ) : (
                     <div className="msg" key={idx}>
-                      <div className="msg-avatar ai"><svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" strokeWidth="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" strokeDasharray="1 4" strokeLinecap="round"/></svg></div>
+                      <div className="msg-avatar ai"><svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" strokeWidth="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" strokeLinecap="round"/></svg></div>
                       <div className="msg-body">
                         <div className="msg-card">
                           <div className="msg-head">
@@ -475,7 +475,7 @@ export default function App() {
                 
                 {isChatLoading && (
                   <div className="msg">
-                    <div className="msg-avatar ai" style={{opacity: 0.5}}><svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" strokeWidth="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" strokeDasharray="1 4" strokeLinecap="round"/></svg></div>
+                    <div className="msg-avatar ai" style={{opacity: 0.5}}><svg viewBox="0 0 24 24" fill="none" stroke="var(--paper)" strokeWidth="1.8"><path d="M4 12h3l2-6 4 12 2-6h5" strokeLinecap="round"/></svg></div>
                     <div className="msg-body">
                       <div className="msg-card"><p className="msg-text">Scanning documentation...</p></div>
                     </div>

@@ -158,6 +158,31 @@ const VECTOR_STORE = [
     "answer": "Tailwind CSS v4 introduces a revolutionary CSS-first configuration model. You no longer need a `tailwind.config.js` or PostCSS setup. Instead, you simply import Tailwind in your main CSS file using `@import 'tailwindcss';` and define your custom theme variables directly inside an `@theme` CSS block. The new Vite plugin handles the rest automatically.",
     "code_lang": "css",
     "code": "/* global.css */\n\n/* Import the entire Tailwind v4 utility engine */\n@import \"tailwindcss\";\n\n/* Define custom design tokens using the new @theme block */\n@theme {\n  /* Custom colors */\n  --color-brand: #3b82f6;\n  --color-brand-dark: #1d4ed8;\n  \n  /* Custom fonts */\n  --font-display: 'Inter', sans-serif;\n  \n  /* Custom spacing */\n  --spacing-128: 32rem;\n}\n\n/* You can still use standard @apply directives */\n.btn-primary {\n  @apply bg-brand text-white px-4 py-2 rounded shadow hover:bg-brand-dark;\n}"
+  },
+  {
+    "id": "chunk_langchain_01",
+    "library": "langchain",
+    "library_name": "LangChain & LangGraph",
+    "title": "LangChain Tool Calling Agent (bind_tools)",
+    "source_url": "https://python.langchain.com/docs/modules/agents/how_to/tool_calling/",
+    "version": "v0.3.4",
+    "similarity_keywords": [
+      "langchain",
+      "python",
+      "agent",
+      "tool",
+      "llm",
+      "reasoning",
+      "bind_tools",
+      "invoke",
+      "graph",
+      "langgraph",
+      "openai"
+    ],
+    "headline": "Creating Tool Calling Agents with bind_tools()",
+    "answer": "In LangChain v0.3, the recommended way to create agents that can use external tools is by using `bind_tools()` on supported chat models (like ChatOpenAI). You pass a list of Pydantic models or Python functions to `bind_tools()`. The model will then output a `tool_calls` field when it decides to use a tool, which you can execute and return as `ToolMessage`s.",
+    "code_lang": "python",
+    "code": "from langchain_openai import ChatOpenAI\nfrom langchain_core.tools import tool\n\n@tool\ndef get_weather(location: str) -> str:\n    \"\"\"Get the current weather for a location.\"\"\"\n    return f\"The weather in {location} is sunny.\"\n\n# 1. Define tools\ntools = [get_weather]\n\n# 2. Bind tools to the LLM\nllm = ChatOpenAI(model=\"gpt-4o\")\nllm_with_tools = llm.bind_tools(tools)\n\n# 3. Invoke the model\nres = llm_with_tools.invoke(\"What is the weather in Tokyo?\")\nprint(res.tool_calls) # Model decides to call get_weather"
   }
 ];
 
