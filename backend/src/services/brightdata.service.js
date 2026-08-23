@@ -16,7 +16,7 @@ class BrightDataService {
       if (fs.existsSync(filePath)) {
         return JSON.parse(fs.readFileSync(filePath, 'utf8'));
       }
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
     return defaultVal;
   }
 

@@ -123,14 +123,14 @@ export default function App() {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
     return DEFAULT_DOC_LIBRARIES;
   });
 
   useEffect(() => {
     try {
       localStorage.setItem('docpulse_libraries', JSON.stringify(docLibraries));
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
   }, [docLibraries]);
 
   const handleTrackNewSource = async () => {
