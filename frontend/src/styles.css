@@ -514,7 +514,7 @@ html[data-theme="dark"] .code-panel{ background:var(--paper-sunken); }
    ============================================================ */
 .vitals-banner{
   background:var(--paper-raised); border:1px solid var(--line);
-  border-radius:var(--radius-l); padding:26px 30px; color:var(--paper); margin-bottom:22px;
+  border-radius:var(--radius-l); padding:26px 30px; color:var(--ink); margin-bottom:22px;
   display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;
   position:relative; overflow:hidden;
 }
