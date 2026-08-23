@@ -127,7 +127,7 @@ export default function App() {
 
   const [docLibraries, setDocLibraries] = useState(() => {
     try {
-      const saved = localStorage.getItem('docpulse_libraries');
+      const saved = localStorage.getItem('docpulse_libs_v2');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -138,7 +138,7 @@ export default function App() {
 
   useEffect(() => {
     try {
-      localStorage.setItem('docpulse_libraries', JSON.stringify(docLibraries));
+      localStorage.setItem('docpulse_libs_v2', JSON.stringify(docLibraries));
     } catch (e) { /* ignore */ }
   }, [docLibraries]);
 
